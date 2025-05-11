@@ -1,13 +1,20 @@
 import {useState,useEffect} from "react"
 import {socket} from "../lib/socket"
+import { useOptions } from "@/store";
 
 let moves:[number,number][] = [];
 
 export const useDraw = (
-    options:CtxOptions,
-    ctx?:CanvasRenderingContext2D
+    blocked : boolean,
+    movedX:number,
+    movedY:number,
+    handleEnd : () => void,
+    ctx?:CanvasRenderingContext2D | undefined
+    
 
 ) => {
+
+    const options  = useOptions();
     const [drawing,setDrawing] = useState(false)
 
     useEffect(() => {
@@ -22,13 +29,13 @@ export const useDraw = (
 
     const handleStartDrawing = (x:number,y:number)=>{
 
-        if(!ctx) return;
+        if(!ctx || blocked) return;
 
 
-            moves = [[x,y]];
+            moves = [[x+movedX,y+movedY]];
             setDrawing(true)
             ctx.beginPath()
-            ctx.lineTo(x,y)
+            ctx.lineTo(x+movedX,y+movedY)
             ctx.stroke()
         
     }
@@ -39,14 +46,15 @@ export const useDraw = (
         socket.emit("draw",moves,options );
         setDrawing(false)
         ctx.closePath();
+        handleEnd();
     }
 
 
     const handleDraw = (x:number,y:number) => {
 
-         if(ctx && drawing){
-            moves.push([x,y]);
-            ctx.lineTo(x,y);
+         if(ctx && drawing && !blocked){
+            moves.push([x+movedX,y+movedY]);
+            ctx.lineTo(x+movedX,y+movedY);
             ctx.stroke()
          }
     }

@@ -1,7 +1,7 @@
-import HomePage from "@/components/home";
+import CanvasPage from "@/components/canvas/canvas";
 
 export default function Home() {
   return (
-   <HomePage/>
+   <CanvasPage/>
   );
 }
