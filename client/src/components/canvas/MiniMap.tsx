@@ -6,6 +6,9 @@ import { CANVAS_SIZE } from "@/constant";
 
 
 
+
+
+
 type MiniMapProps = {
   x: MotionValue<number>;
   y: MotionValue<number>;
@@ -38,7 +41,7 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
 
     return (
       <div
-        className="absolute right-10 top-10 z-50 bg-zinc-600"
+        className="absolute right-10 top-10 z-50 bg-zinc-300"
         ref={containerRef}
         style={{
           width: CANVAS_SIZE.width / 10,
@@ -78,4 +81,3 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
 Minimap.displayName = "Minimap";
 
 export default Minimap;
-

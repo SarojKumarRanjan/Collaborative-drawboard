@@ -20,11 +20,7 @@ io.on("connection", (socket) => {
 
   socket.join("global");
 
-  const allUsers = io.sockets.adapter.rooms.get("global");
-
-  if(allUsers){
-    return io.to("global").emit("user_in_room",[...allUsers])
-  }
+ 
 
   socket.on("mouse_move",(x,y)=>{
     console.log("mouse moved");
@@ -34,6 +30,9 @@ io.on("connection", (socket) => {
 
 
  socket.on("draw",(moves,options) =>{
+
+  //console.log(moves,options);
+  
   console.log("recieving the drawing");
 
   socket.broadcast.emit("socket_draw",options,moves)
@@ -48,6 +47,17 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
  
+
+ const allUsers = io.sockets.adapter.rooms.get("global");
+
+console.log(allUsers);
+
+
+  if(allUsers){
+    return io.to("global").emit("user_in_room",[...allUsers])
+  }
+
+
 });
 
 

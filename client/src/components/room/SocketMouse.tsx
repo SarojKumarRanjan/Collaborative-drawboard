@@ -24,7 +24,7 @@ const SocketMouse = ({socketId}:{socketId:string}) =>{
         });
 
 
-        // cleaup part
+      
 
         return () => {
             socket.off("mouse_moved", )

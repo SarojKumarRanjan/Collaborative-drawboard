@@ -1,4 +1,4 @@
-
+"use client"
 import { CANVAS_SIZE } from "@/constant";
 import { useDraw } from "@/hooks/Drawing";
 import { useViewportSize } from "@/hooks/Viewport";
