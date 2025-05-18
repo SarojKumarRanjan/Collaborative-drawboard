@@ -1,6 +1,6 @@
 import {useState,useEffect} from "react"
-import {socket} from "../lib/socket"
-import { useOptions } from "@/store";
+import {socket} from "@/lib/Socket"
+import { useOptions } from "@/store/Index";
 
 let moves:[number,number][] = [];
 

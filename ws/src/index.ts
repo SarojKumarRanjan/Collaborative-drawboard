@@ -16,7 +16,7 @@ const io = new Server(server, {
 // Socket.IO connection
 
 io.on("connection", (socket) => {
-  //console.log("a user connected");
+  console.log("a user connected");
 
   socket.join("global");
 

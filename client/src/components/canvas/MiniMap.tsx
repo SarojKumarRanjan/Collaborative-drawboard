@@ -1,7 +1,8 @@
-import { Dispatch,  forwardRef, SetStateAction, useEffect, useRef } from "react";
+import {   forwardRef,  useEffect, useRef } from "react";
+import type {Dispatch,SetStateAction} from "react"
 import { MotionValue, useMotionValue , motion} from "motion/react";
-import { useViewportSize } from "@/hooks/viewport";
-import { CANVAS_SIZE } from "@/constants/canvasSize";
+import { useViewportSize } from "@/hooks/Viewport";
+import { CANVAS_SIZE } from "@/constant";
 
 
 
@@ -37,7 +38,7 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
 
     return (
       <div
-        className="absolute right-10 top-10 z-50 bg-white"
+        className="absolute right-10 top-10 z-50 bg-zinc-600"
         ref={containerRef}
         style={{
           width: CANVAS_SIZE.width / 10,

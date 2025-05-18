@@ -1,13 +1,13 @@
-"use client"
-import { CANVAS_SIZE } from "@/constants/canvasSize";
-import { useDraw } from "@/hooks/drawing";
-import { useViewportSize } from "@/hooks/viewport";
+
+import { CANVAS_SIZE } from "@/constant";
+import { useDraw } from "@/hooks/Drawing";
+import { useViewportSize } from "@/hooks/Viewport";
 import { useMotionValue,motion } from "motion/react";
 import { useRef, useState, useEffect } from "react";
 import { useKeyPressEvent } from "react-use";
-import { socket } from "@/lib/socket";
-import { drawFromSocket } from "@/hooks/drawFromSocket";
-import Minimap from "./minimap";
+import { socket } from "@/lib/Socket";
+import { drawFromSocket } from "@/hooks/DrawFromSocket";
+import Minimap from "./MiniMap";
 
 const CanvasPage = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);

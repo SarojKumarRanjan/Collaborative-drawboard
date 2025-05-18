@@ -17,6 +17,15 @@ const io = new socket_io_1.Server(server, {
 // Socket.IO connection
 io.on("connection", (socket) => {
     console.log("a user connected");
+    socket.join("global");
+    const allUsers = io.sockets.adapter.rooms.get("global");
+    if (allUsers) {
+        return io.to("global").emit("user_in_room", [...allUsers]);
+    }
+    socket.on("mouse_move", (x, y) => {
+        console.log("mouse moved");
+        socket.broadcast.emit("mouse_moved", x, y, socket.id);
+    });
     socket.on("draw", (moves, options) => {
         console.log("recieving the drawing");
         socket.broadcast.emit("socket_draw", options, moves);

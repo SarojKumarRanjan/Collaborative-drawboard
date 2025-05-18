@@ -1,5 +1,5 @@
-import { socket } from "@/lib/socket"
-import { useBoardPosition } from "@/store/boardPosition"
+import { socket } from "@/lib/Socket"
+import { useBoardPosition } from "@/store/BoardPosition"
 import { useEffect, useState } from "react";
 import {motion} from "motion/react"
 import {BsCursorFill} from "react-icons/bs"
