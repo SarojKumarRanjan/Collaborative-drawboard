@@ -1,4 +1,4 @@
-import CanvasPage from "@/components/canvas/Canvas"
+import Room from "@/components/room/Room"
 
 
 function App() {
@@ -6,7 +6,7 @@ function App() {
 
   return (
    <>
-   <CanvasPage/>
+   <Room/>
    </>
   )
 }

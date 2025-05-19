@@ -7,6 +7,8 @@ export const drawFromSocket = (
         afterDraw : ()=> void
     )=>{
 
+        console.log(socketMoves)
+
         const tempCtx = ctx;
         if(tempCtx){
             tempCtx.lineWidth = socketOptions.lineWidth

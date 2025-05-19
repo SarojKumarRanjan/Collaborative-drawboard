@@ -1,13 +1,15 @@
-"use client"
+
 import { CANVAS_SIZE } from "@/constant";
 import { useDraw } from "@/hooks/Drawing";
 import { useViewportSize } from "@/hooks/Viewport";
-import { useMotionValue,motion } from "motion/react";
+import { motion } from "motion/react";
 import { useRef, useState, useEffect } from "react";
 import { useKeyPressEvent } from "react-use";
 import { socket } from "@/lib/Socket";
 import { drawFromSocket } from "@/hooks/DrawFromSocket";
 import Minimap from "./MiniMap";
+import { useBoardPosition } from "@/store/BoardPosition";
+
 
 const CanvasPage = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -22,8 +24,9 @@ const CanvasPage = () => {
     if (e.ctrlKey && !dragging) setDragging(true);
   });
 
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+  const {x,y} = useBoardPosition()
+  /* const x = useMotionValue(0);
+  const y = useMotionValue(0); */
 
   const copyCanvasToSmall = () => {
     if (canvasRef.current) {
@@ -72,6 +75,7 @@ const CanvasPage = () => {
     };
 
     socket.on("socket_draw", (movesToDraw, socketOptions) => {
+      console.log(socketOptions)
       if (ctx && !drawing) {
         drawFromSocket(
           movesToDraw,
