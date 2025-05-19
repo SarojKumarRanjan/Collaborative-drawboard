@@ -6,7 +6,7 @@ import {BsCursorFill} from "react-icons/bs"
 
 
 
-const SocketMouse = ({socketId}:{socketId:string}) =>{
+const SocketMouse = ({userId}:{userId:string}) =>{
     const boardPosition = useBoardPosition();
 
     const [x,setX] = useState(boardPosition.x.get());
@@ -17,7 +17,7 @@ const SocketMouse = ({socketId}:{socketId:string}) =>{
     useEffect(() =>{
 
         socket.on("mouse_moved" , (newX , newY , socketIdMoved) => {
-            if(socketIdMoved === socketId){
+            if(socketIdMoved === userId){
                 setPosition({x:newX,y:newY});
             }
 
@@ -31,7 +31,7 @@ const SocketMouse = ({socketId}:{socketId:string}) =>{
         }
 
 
-    },[socketId])
+    },[userId])
 
 
 

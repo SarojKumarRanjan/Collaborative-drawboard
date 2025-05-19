@@ -71,7 +71,7 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
               y: miniY,
             }}
             animate={{ x: -x.get() / 10, y: -y.get() / 10 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0 }}
           />
       </div>
     );

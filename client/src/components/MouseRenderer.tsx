@@ -1,34 +1,24 @@
-import { socket } from "@/lib/Socket";
-import { useEffect, useState } from "react"
+import { useUsersStore } from "@/store/Users";
 import SocketMouse from "./room/SocketMouse";
 
 
 const MouseRenderer = () => {
 
-const [mouses , setMouses] = useState<string[]>([]);
+const {userIds} = useUsersStore()
 
-useEffect(()=>{
-    socket.on("user_in_room",(socketIds) => {
+const users = userIds();
 
-        const allUsers = socketIds.filter((socketId:string) => socketId !== socket.id)
-        setMouses(allUsers);
-    })
-
-    return () => {
-        socket.off("user_in_room")
-    }
-},[])
 
 
 return (
     <>
     {
-        mouses.map((socket) => {
+        users.map((userId) => {
        
 
 
             return (
-                <SocketMouse socketId={socket} key={socket}/>
+                <SocketMouse userId={userId} key={userId}/>
             )
         })
     }

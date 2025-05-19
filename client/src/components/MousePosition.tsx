@@ -25,7 +25,7 @@ useInterval(() => {
 
 return (
     <motion.div
-    className="absolute top-0 left-0 z-50 select-none"
+    className="pointer-events-none absolute top-0 left-0 z-50 select-none"
     ref={ref}
     animate={{x:docX+15 , y:docY + 15}}
     transition={{duration:0.3,ease:"linear"}}
