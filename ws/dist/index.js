@@ -25,7 +25,11 @@ io.on("connection", (socket) => {
     socket.on("draw", (moves, options) => {
         //console.log(moves,options);
         console.log("recieving the drawing");
-        socket.broadcast.emit("socket_draw", moves, options);
+        socket.broadcast.emit("user_draw", moves, options, socket.id);
+    });
+    socket.on("undo", () => {
+        console.log("undoing things by user ", socket.id);
+        socket.broadcast.emit("user_undo", socket.id);
     });
     socket.on("disconnect", () => {
         console.log("user disconnected");

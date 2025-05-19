@@ -36,11 +36,16 @@ io.on("connection", (socket) => {
   
   console.log("recieving the drawing");
 
-  socket.broadcast.emit("socket_draw",moves,options)
+  socket.broadcast.emit("user_draw",moves,options,socket.id)
   
 
  })
 
+ socket.on("undo",() => {
+  console.log("undoing things by user ",socket.id);
+  socket.broadcast.emit("user_undo",socket.id)
+  
+ })
 
 
 
