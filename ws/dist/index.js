@@ -19,13 +19,13 @@ io.on("connection", (socket) => {
     console.log("a user connected");
     socket.join("global");
     socket.on("mouse_move", (x, y) => {
-        console.log("mouse moved");
+        // console.log("mouse moved",x,y);
         socket.broadcast.emit("mouse_moved", x, y, socket.id);
     });
     socket.on("draw", (moves, options) => {
-        console.log(moves, options);
+        //console.log(moves,options);
         console.log("recieving the drawing");
-        socket.broadcast.emit("socket_draw", options, moves);
+        socket.broadcast.emit("socket_draw", moves, options);
     });
     socket.on("disconnect", () => {
         console.log("user disconnected");
