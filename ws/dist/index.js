@@ -22,10 +22,10 @@ io.on("connection", (socket) => {
         // console.log("mouse moved",x,y);
         socket.broadcast.emit("mouse_moved", x, y, socket.id);
     });
-    socket.on("draw", (moves, options) => {
+    socket.on("draw", (move) => {
         //console.log(moves,options);
         console.log("recieving the drawing");
-        socket.broadcast.emit("user_draw", moves, options, socket.id);
+        socket.broadcast.emit("user_draw", move, socket.id);
     });
     socket.on("undo", () => {
         console.log("undoing things by user ", socket.id);

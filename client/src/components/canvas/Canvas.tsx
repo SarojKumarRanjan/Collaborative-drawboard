@@ -43,7 +43,7 @@ const CanvasPage = () => {
    
   };
 
-  const { handleDraw, handleEndDrawing, handleStartDrawing, handleUndo } = useDraw(
+  const { handleDraw, handleEndDrawing, handleStartDrawing, handleUndo ,drawing} = useDraw(
     dragging,
     copyCanvasToSmall,
     ctx
@@ -66,7 +66,7 @@ const CanvasPage = () => {
     };
   }, [dragging]);
 
-    useSocketDraw(ctx,copyCanvasToSmall)
+    useSocketDraw(ctx,drawing , copyCanvasToSmall)
 
 
   return(

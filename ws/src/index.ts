@@ -30,13 +30,13 @@ io.on("connection", (socket) => {
   })
 
 
- socket.on("draw",(moves,options) =>{
+ socket.on("draw",(move) =>{
 
   //console.log(moves,options);
   
   console.log("recieving the drawing");
 
-  socket.broadcast.emit("user_draw",moves,options,socket.id)
+  socket.broadcast.emit("user_draw",move,socket.id)
   
 
  })

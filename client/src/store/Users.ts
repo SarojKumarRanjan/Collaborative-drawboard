@@ -1,13 +1,28 @@
 import { create } from 'zustand';
 import {socket} from "@/lib/Socket"
 
-type UserDrawings = [number, number][][];
-type Users = Record<string, UserDrawings>;
+
+type Users = {
+  [userId: string]: Move[]
+};
+
+/*
+
+Move = {
+path: [number, number][];
+options: {
+  lineWidth: number;
+  lineColor: string;  
+}
+
+}
+
+*/
 
 interface UsersStore {
   users: Users;
   userIds: () => string[];
-  setUser: (userId: string, drawings: UserDrawings) => void;
+  setUser: (userId: string, moves:Move[]) => void;
   addUser: (userId:string) => void;
   removeUser: (userId:string) => void;
   initializeSocketListeners: () => () => void;
@@ -16,11 +31,11 @@ interface UsersStore {
 export const useUsersStore = create<UsersStore>((set, get) => ({
   users: {},
   userIds: () => Object.keys(get().users),
-  setUser: (userId: string, drawings: UserDrawings) => 
+  setUser: (userId: string, moves:Move[]) => 
     set((state) => ({
       users: {
         ...state.users,
-        [userId]: drawings
+        [userId]: moves
       }
     })),
   addUser: (userId) => {

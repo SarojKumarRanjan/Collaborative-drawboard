@@ -1,5 +1,5 @@
 import { useUsersStore } from "@/store/Users";
-import SocketMouse from "./room/SocketMouse";
+import UsersMouse from "./room/UsersMouse";
 
 
 const MouseRenderer = () => {
@@ -18,7 +18,7 @@ return (
 
 
             return (
-                <SocketMouse userId={userId} key={userId}/>
+                <UsersMouse userId={userId} key={userId}/>
             )
         })
     }

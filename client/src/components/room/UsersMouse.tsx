@@ -6,7 +6,7 @@ import {BsCursorFill} from "react-icons/bs"
 
 
 
-const SocketMouse = ({userId}:{userId:string}) =>{
+const UsersMouse = ({userId}:{userId:string}) =>{
     const boardPosition = useBoardPosition();
 
     const [x,setX] = useState(boardPosition.x.get());
@@ -48,7 +48,7 @@ const SocketMouse = ({userId}:{userId:string}) =>{
 
 return(
     <motion.div
-    className={`absolute top-0 left-0 text-blue-800 ${position.x===-1 && "hidden"}`}
+    className={`absolute top-0 left-0 text-blue-800 ${position.x===-1 && "hidden"} pointer-events-none`}
     animate={
         {x:position.x+x,y:position.y+y}
     }
@@ -69,4 +69,4 @@ return(
 
 
 
-export default SocketMouse
+export default UsersMouse

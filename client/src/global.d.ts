@@ -4,10 +4,16 @@ export declare global{
         lineColor:string;
     }
 
+    interface Move{
+        path:[number,number][]
+        options:CtxOptions
+    }
+
+    type Room = map<string,Move[]>
    interface serverToClientEvents{
+       joined:(roomId:string) => void;
         user_draw:(
-            newMoves:[number,number][],
-            options:CtxOptions,
+            move:Move,
             userId:string
         )=>void;
         user_undo(userId:string): void
@@ -18,7 +24,7 @@ export declare global{
         
     }
  interface clientToServerEvents{
-        draw:(moves:[number,number][],options:CtxOptions)=>void;
+        draw:(move:Move)=>void;
         mouse_move:(x:number,y:number) => void;
         undo:() => void
         
