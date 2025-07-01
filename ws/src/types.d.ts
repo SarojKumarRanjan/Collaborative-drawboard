@@ -9,7 +9,9 @@ export declare global{
         options:CtxOptions
     }
 
+    type Room = map<string,Move[]>
    interface serverToClientEvents{
+       joined:(roomId:string) => void;
         user_draw:(
             move:Move,
             userId:string

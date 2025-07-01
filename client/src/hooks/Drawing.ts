@@ -9,7 +9,6 @@ import { getPosition } from "@/lib/GetPosition";
 import { useSetUser } from "@/store/Users";
 import { handleMove } from "./DrawFromSocket";
 
-
 // eslint-disable-next-line prefer-const
 let savedMoves:Move[] =[];
 let moves:[number,number][] = [];
@@ -18,19 +17,13 @@ export const useDraw = (
     blocked : boolean,
     handleEnd : () => void,
     ctx?:CanvasRenderingContext2D | undefined
-    
-
 ) => {
-
     const position   = useBoardPosition();
-
     const movedX = position.x
     const movedY = position.y
-
     const users = useUsers();
     const options  = useOptions();
     const [drawing,setDrawing] = useState(false)
-
 
     useEffect(() => {
         if(ctx){
@@ -42,22 +35,16 @@ export const useDraw = (
     })
 
     //handle undo function
-
     const handleUndo = useCallback(() => {
         if(ctx){
             savedMoves.pop();
             socket.emit("undo")
-            
-                drawOnUndo(ctx,savedMoves,users);
-            
-            drawOnUndo(ctx,savedMoves,users)
+            drawOnUndo(ctx,savedMoves,users);
             handleEnd();
         }
-
     },[ctx,handleEnd,users])
 
     // handle ctrl z for the undo part
-
     useEffect(() => {
         const handleUndoKeyboard = (e:KeyboardEvent)=>{
             if(e.key==='z' && e.ctrlKey){
@@ -67,60 +54,46 @@ export const useDraw = (
 
         document.addEventListener("keydown",handleUndoKeyboard);
 
-
         return () => {
             document.removeEventListener("keydown",handleUndoKeyboard)
         }
     },[handleUndo])
 
-
     const handleStartDrawing = (x:number,y:number)=>{
-
         if(!ctx || blocked) return;
-
-
-            
-            setDrawing(true)
-            ctx.beginPath()
-            ctx.lineTo(getPosition(x,movedX),getPosition(y,movedY))
-            ctx.stroke()
         
+        setDrawing(true)
+        ctx.beginPath()
+        ctx.lineTo(getPosition(x,movedX),getPosition(y,movedY))
+        ctx.stroke()
     }
 
     const handleEndDrawing = () =>{
         if(!ctx) return;
 
-
         setDrawing(false)
-         ctx.closePath();
+        ctx.closePath();
 
-         const move:Move = {
-            path:moves,
-            options
-         }
+        const move:Move = {
+           path:moves,
+           options
+        }
         savedMoves.push(move)
         socket.emit("draw",move );
 
         moves = []
-        
-       
         handleEnd();
     }
 
-
     const handleDraw = (x:number,y:number) => {
-
          if(!ctx || !drawing || blocked) {
             return
          }
             
-            ctx.lineTo(getPosition(x,movedX),getPosition(y,movedY));
-            ctx.stroke()
-
-            moves.push([getPosition(x,movedX),getPosition(y,movedY)]);
-         
+         ctx.lineTo(getPosition(x,movedX),getPosition(y,movedY));
+         ctx.stroke()
+         moves.push([getPosition(x,movedX),getPosition(y,movedY)]);
     }
-
 
     return{
         handleDraw,
@@ -129,101 +102,134 @@ export const useDraw = (
         drawing,
         handleUndo
     }
-
- 
 }
-
-
 
 export const useSocketDraw = (
     ctx:CanvasRenderingContext2D | undefined,
     drawing:boolean,
     handelEnd: () => void
 ) => {
-    
     const users = useUsers()
     const setUser = useSetUser();
+    const [pendingRoomData, setPendingRoomData] = useState<string | null>(null);
 
-
+    // Handle joined event - store data if ctx not ready, process immediately if ready
     useEffect(() => {
-        socket.on("joined",(roomJSON) => {
-           const room:Room = new Map(JSON.parse(roomJSON));
-
-           room.forEach((moves:any,userId:any) => {
-            if(ctx){
-                moves.forEach((move:any) => {
-                    handleMove(move,ctx);
-                    handelEnd();
-                    setUser(userId,moves);
-                })
+        const handleJoined = (roomJSON: string) => {
+            console.log("Joined event received, ctx available:", !!ctx);
+            
+            if (!ctx) {
+                // Store the room data to process later when ctx becomes available
+                console.log("Canvas not ready, storing room data for later");
+                setPendingRoomData(roomJSON);
+                return;
             }
-           })
+            
+            // Process immediately if ctx is available
+            processRoomData(roomJSON, ctx, setUser, handelEnd);
+        };
 
-           
-        })
+        socket.on("joined", handleJoined);
 
         return () => {
-            socket.off("joined")
+            socket.off("joined", handleJoined);
         }
-    },[ctx, setUser, handelEnd]); 
+    }, [ctx, setUser, handelEnd]); 
 
-
-
-
+    // Process pending room data when ctx becomes available
     useEffect(() => {
-        let movesToDrawLater:Move[] | undefined;
-        let userIdLater = "";
-        socket.on("user_draw",(move,userId)=>{
+        if (ctx && pendingRoomData) {
+            console.log("Canvas now ready, processing pending room data");
+            processRoomData(pendingRoomData, ctx, setUser, handelEnd);
+            setPendingRoomData(null); // Clear pending data
+        }
+    }, [ctx, pendingRoomData, setUser, handelEnd]);
 
-            if(ctx && !drawing){
+    // Helper function to process room data
+    const processRoomData = (roomJSON: string, context: CanvasRenderingContext2D, setUserFn: any, handleEndFn: () => void) => {
+        try {
+            const room: Room = new Map(JSON.parse(roomJSON));
+            console.log("Processing room data, canvas context available:", !!context);
+            console.log("Room data:", room);
+            
+            // Clear canvas before drawing existing moves
+            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+            
+            room.forEach((moves: any, userId: any) => {
+                console.log(`User ${userId} has ${moves.length} moves`);
                 
-                handleMove(move,ctx);
+                if (moves.length > 0) {
+                    moves.forEach((move: any) => {
+                        console.log("Drawing move:", move);
+                        handleMove(move, context);
+                    });
+                }
+                
+                // Update user state
+                setUserFn(userId, moves);
+            });
+            
+            // Call handleEnd once after all moves are processed
+            handleEndFn();
+            
+        } catch (error) {
+            console.error("Error processing room data:", error);
+        }
+    };
 
-                setUser(userId,move)
-
-              
-            }else{
-                movesToDrawLater?.push(move);
+    // Handle real-time drawing from other users
+    useEffect(() => {
+        const movesToDrawLater: Move[] = [];
+        let userIdLater = "";
+        
+        const handleUserDraw = (move: any, userId: string) => {
+            if (ctx && !drawing) {
+                // Draw immediately if we're not drawing and have context
+                handleMove(move, ctx);
+                setUser(userId, move);
+            } else {
+                // Queue moves to draw later
+                movesToDrawLater.push(move);
                 userIdLater = userId;
             }
-
-        })
-
-        
-
-
-        return () => {
-            socket.off("user_undo")
-            if(ctx && movesToDrawLater && userIdLater){
-              movesToDrawLater.forEach((move) => {
-                handleMove(move,ctx);
-              });
-
-            
-                handelEnd();
-                setUser(userIdLater,movesToDrawLater);
-            }
-            socket.off("user_draw")
-        }
-
-        //handle this carefully
-    },[ctx,setUser,users,handelEnd,drawing])
-
-    useEffect(() => {
-       socket.on("user_undo",(userId:string) => {
-           const newMoves =   users[userId].slice(0,-1)
-
-           setUser(userId,newMoves)
-
-           if(ctx){
-            drawOnUndo(ctx,savedMoves,users)
-            handelEnd()
-           }
-        })
-
-        return () => {
-            socket.off("user_undo");
         };
-    }, [ctx, setUser, handelEnd,users]);
 
+        socket.on("user_draw", handleUserDraw);
+
+        return () => {
+            socket.off("user_draw", handleUserDraw);
+            
+            // Draw queued moves on cleanup
+            if (ctx && movesToDrawLater.length > 0 && userIdLater) {
+                movesToDrawLater.forEach((move) => {
+                    handleMove(move, ctx);
+                });
+                handelEnd();
+                setUser(userIdLater, movesToDrawLater);
+            }
+        }
+    }, [ctx, setUser, users, handelEnd, drawing])
+
+    // Handle undo from other users
+    useEffect(() => {
+        const handleUserUndo = (userId: string) => {
+            const userMoves = users[userId];
+            if (userMoves && userMoves.length > 0) {
+                const newMoves = userMoves.slice(0, -1);
+                setUser(userId, newMoves);
+
+                if (ctx) {
+                    // Redraw all moves after undo
+                    drawOnUndo(ctx, savedMoves, users);
+                    handelEnd();
+                }
+            }
+        };
+
+        socket.on("user_undo", handleUserUndo);
+
+        return () => {
+            socket.off("user_undo", handleUserUndo);
+        };
+    }, [ctx, setUser, handelEnd, users]);
 }

@@ -6,6 +6,7 @@ export const handleMove = (
         
     )=>{ 
  
+      
 
         const {path,options} = move;
 

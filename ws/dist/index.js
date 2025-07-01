@@ -14,33 +14,70 @@ const io = new socket_io_1.Server(server, {
         methods: ["GET", "POST"],
     },
 });
+const rooms = new Map();
+rooms.set("global", new Map());
+const addMove = (roomId, socketId, move) => {
+    var _a;
+    const room = rooms.get(roomId);
+    if (!room) {
+        console.error(`Room ${roomId} not found!`);
+        return;
+    }
+    if (!room.has(socketId)) {
+        room.set(socketId, [move]);
+    }
+    else {
+        (_a = room.get(socketId)) === null || _a === void 0 ? void 0 : _a.push(move);
+    }
+};
+const undoMove = (roomId, socketId) => {
+    const room = rooms.get(roomId);
+    const moves = room === null || room === void 0 ? void 0 : room.get(socketId);
+    if (moves && moves.length > 0) {
+        moves.pop();
+    }
+};
 // Socket.IO connection
 io.on("connection", (socket) => {
     console.log("a user connected");
     socket.join("global");
+    const globalRoom = rooms.get("global");
+    if (globalRoom) {
+        globalRoom.set(socket.id, []);
+    }
+    else {
+        console.error("Global room not found on connection!");
+    }
+    io.to(socket.id).emit("joined", JSON.stringify([...rooms.get("global") || []]));
+    // Notify all users about current users in the room
+    const allUsers = io.sockets.adapter.rooms.get("global");
+    console.log("Current users in room:", allUsers);
+    if (allUsers) {
+        io.to("global").emit("user_in_room", [...allUsers]);
+    }
     socket.on("mouse_move", (x, y) => {
-        // console.log("mouse moved",x,y);
         socket.broadcast.emit("mouse_moved", x, y, socket.id);
     });
     socket.on("draw", (move) => {
-        //console.log(moves,options);
-        console.log("recieving the drawing");
+        addMove("global", socket.id, move);
         socket.broadcast.emit("user_draw", move, socket.id);
     });
     socket.on("undo", () => {
-        console.log("undoing things by user ", socket.id);
+        undoMove("global", socket.id);
         socket.broadcast.emit("user_undo", socket.id);
     });
     socket.on("disconnect", () => {
         console.log("user disconnected");
+        const room = rooms.get("global");
+        room === null || room === void 0 ? void 0 : room.delete(socket.id);
+        io.to("global").emit("user_disconnected", socket.id);
+        const remainingUsers = io.sockets.adapter.rooms.get("global");
+        if (remainingUsers) {
+            io.to("global").emit("user_in_room", [...remainingUsers]);
+        }
     });
-    const allUsers = io.sockets.adapter.rooms.get("global");
-    console.log(allUsers);
-    if (allUsers) {
-        return io.to("global").emit("user_in_room", [...allUsers]);
-    }
 });
-// Express routes
+// Express routes & middleware
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.static("public"));
