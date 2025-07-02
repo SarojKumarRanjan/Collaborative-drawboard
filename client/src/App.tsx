@@ -1,6 +1,7 @@
-import Room from "@/components/room/Room"
+
 import { useUsersStore } from "./store/Users";
 import { useEffect } from "react";
+import { Outlet } from "react-router-dom";
 
 
 function App() {
@@ -19,7 +20,8 @@ function App() {
 
   return (
    <>
-   <Room/>
+   <Outlet/>
+   
    </>
   )
 }

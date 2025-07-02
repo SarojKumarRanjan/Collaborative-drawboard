@@ -47,9 +47,9 @@ const CanvasPage = () => {
         setCtx(newCtx);
       }
     }
-  }, []); // Run once on mount
+  }, []); 
 
-  // Handle keyboard events for dragging
+  
   useEffect(() => {
     const handleKeyUp = (e: KeyboardEvent) => {
       if (!e.ctrlKey && dragging) {

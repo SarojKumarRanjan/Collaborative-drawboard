@@ -116,11 +116,11 @@ export const useSocketDraw = (
     // Handle joined event - store data if ctx not ready, process immediately if ready
     useEffect(() => {
         const handleJoined = (roomJSON: string) => {
-            console.log("Joined event received, ctx available:", !!ctx);
+            //console.log("Joined event received, ctx available:", !!ctx);
             
             if (!ctx) {
                 // Store the room data to process later when ctx becomes available
-                console.log("Canvas not ready, storing room data for later");
+               // console.log("Canvas not ready, storing room data for later");
                 setPendingRoomData(roomJSON);
                 return;
             }
@@ -139,9 +139,9 @@ export const useSocketDraw = (
     // Process pending room data when ctx becomes available
     useEffect(() => {
         if (ctx && pendingRoomData) {
-            console.log("Canvas now ready, processing pending room data");
+            //console.log("Canvas now ready, processing pending room data");
             processRoomData(pendingRoomData, ctx, setUser, handelEnd);
-            setPendingRoomData(null); // Clear pending data
+            setPendingRoomData(null); 
         }
     }, [ctx, pendingRoomData, setUser, handelEnd]);
 
@@ -149,14 +149,14 @@ export const useSocketDraw = (
     const processRoomData = (roomJSON: string, context: CanvasRenderingContext2D, setUserFn: any, handleEndFn: () => void) => {
         try {
             const room: Room = new Map(JSON.parse(roomJSON));
-            console.log("Processing room data, canvas context available:", !!context);
-            console.log("Room data:", room);
+           // console.log("Processing room data, canvas context available:", !!context);
+           // console.log("Room data:", room);
             
             // Clear canvas before drawing existing moves
             context.clearRect(0, 0, context.canvas.width, context.canvas.height);
             
             room.forEach((moves: any, userId: any) => {
-                console.log(`User ${userId} has ${moves.length} moves`);
+               // console.log(`User ${userId} has ${moves.length} moves`);
                 
                 if (moves.length > 0) {
                     moves.forEach((move: any) => {
