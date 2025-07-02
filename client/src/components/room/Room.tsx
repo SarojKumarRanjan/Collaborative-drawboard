@@ -22,7 +22,7 @@ useEffect(() => {
     }))
 
     socket.on("joined",(roomIdFromServer,failed) => {
-        if(!failed) alert("failed to join room")
+        if(failed) alert("failed to join room")
 
 
           navigate(`/${roomIdFromServer}`)  
