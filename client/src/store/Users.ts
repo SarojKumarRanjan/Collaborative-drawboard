@@ -65,12 +65,12 @@ export const useUsersStore = create<UsersStore>((set, get) => ({
       get().removeUser(userId);
     };
 
-    socket.on("user_in_room", handleNewUsers);
+    socket.on("new_user", handleNewUsers);
     socket.on("user_disconnected", handleDisconnect);
 
     
     return () => {
-      socket.off("user_in_room", handleNewUsers);
+      socket.off("new_user", handleNewUsers);
       socket.off("user_disconnected", handleDisconnect);
     };
   }
