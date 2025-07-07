@@ -62,59 +62,118 @@ const undoMove = (roomId: string, socketId: string) => {
   }
 };
 
-// Socket.IO connection
+
 io.on("connection", (socket) => {
   console.log("a user connected");
 
-  socket.join("global");
+  const getRoomId = () => {
+    const joinedRoom = [...socket.rooms].find((room) => room != socket.id);
+    if (!joinedRoom) return socket.id;
 
-  const globalRoom = rooms.get("global");
-  if (globalRoom) {
-    globalRoom.set(socket.id, []);
-  } else {
-    console.error("Global room not found on connection!");
-  }
+    return joinedRoom;
+  };
 
-  io.to(socket.id).emit(
-    "joined",
-    JSON.stringify([...rooms.get("global") || []])
-  );
+  // create new room when user req
 
-  // Notify all users about current users in the room
-  const allUsers = io.sockets.adapter.rooms.get("global");
-  console.log("Current users in room:", allUsers);
-  if (allUsers) {
-    io.to("global").emit("user_in_room", [...allUsers]);
-  }
+  socket.on("create_room", () => {
+    console.log("create room recieved");
+    
+    let roomId: string;
+
+    do {
+      roomId = Math.random().toString(36).substring(2, 6);
+    } while (rooms.has(roomId));
+
+    socket.join(roomId);
+
+    rooms.set(roomId, new Map());
+
+    rooms.get(roomId)?.set(socket.id, []);
+
+    io.to(socket.id).emit("created", roomId);
+  });
+
+  // join room when user want to join
+
+  socket.on("join_room", (roomId: string) => {
+    console.log("join_room room revievd");
+    
+    if (rooms.has(roomId)) {
+      socket.join(roomId);
+
+      io.to(socket.id).emit("joined", roomId);
+    } else {
+      io.to(socket.id).emit("joined", "", true);
+    }
+  });
+
+  // lister to alert other users that a this user has joined room 
+
+  socket.on("joined_room",() => {
+    console.log('joined room recieved on the listner joined_room');
+
+    const roomId = getRoomId();
+
+    rooms.get(roomId)?.set(socket.id,[])
+
+    io.to(socket.id).emit("room",JSON.stringify([...rooms.get(roomId)!]))
+
+    socket.broadcast.to(roomId).emit("new_user",socket.id)
+
+
+    
+  })
+
+
+  socket.on("leave_room",() =>{
+
+    console.log("leave_room");
+    
+    const roomId = getRoomId();
+
+    const user = rooms.get(roomId)?.get(socket.id)
+
+    if(user?.length === 0 ) rooms.get(roomId)?.delete(socket.id)
+  })
 
   socket.on("mouse_move", (x, y) => {
-    socket.broadcast.emit("mouse_moved", x, y, socket.id);
+    console.log("mouse_move");
+    
+    const roomId = getRoomId();
+    socket.broadcast.to(roomId).emit("mouse_moved", x, y, socket.id);
   });
 
   socket.on("draw", (move: Move) => {
-    addMove("global", socket.id, move);
-    socket.broadcast.emit("user_draw", move, socket.id);
+
+    console.log("draw");
+    
+    const roomId = getRoomId()
+    addMove(roomId, socket.id, move);
+    socket.broadcast.to(roomId).emit("user_draw", move, socket.id);
   });
 
   socket.on("undo", () => {
-    undoMove("global", socket.id);
-    socket.broadcast.emit("user_undo", socket.id);
+
+    console.log("undo");
+    
+
+    const roomId = getRoomId();
+
+
+    undoMove(roomId, socket.id);
+
+    socket.broadcast.to(socket.id).emit("user_undo", socket.id);
   });
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
-    const room = rooms.get("global");
+    const room = rooms.get(getRoomId());
     room?.delete(socket.id);
-    io.to("global").emit("user_disconnected", socket.id);
-
-    const remainingUsers = io.sockets.adapter.rooms.get("global");
-    if (remainingUsers) {
-      io.to("global").emit("user_in_room", [...remainingUsers]);
-    }
+    io.to(getRoomId()).emit("user_disconnected", socket.id);
   });
 });
 
-// Express routes & middleware
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));

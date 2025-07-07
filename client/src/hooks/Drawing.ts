@@ -113,26 +113,31 @@ export const useSocketDraw = (
     const setUser = useSetUser();
     const [pendingRoomData, setPendingRoomData] = useState<string | null>(null);
 
-    // Handle joined event - store data if ctx not ready, process immediately if ready
+
+    useEffect(() => {
+        socket.emit("joined_room")
+    },[])
+   
     useEffect(() => {
         const handleJoined = (roomJSON: string) => {
-            //console.log("Joined event received, ctx available:", !!ctx);
+            
             
             if (!ctx) {
-                // Store the room data to process later when ctx becomes available
-               // console.log("Canvas not ready, storing room data for later");
+               
                 setPendingRoomData(roomJSON);
                 return;
             }
             
-            // Process immediately if ctx is available
+            
             processRoomData(roomJSON, ctx, setUser, handelEnd);
         };
 
-        socket.on("joined", handleJoined);
+
+
+        socket.on("room", handleJoined);
 
         return () => {
-            socket.off("joined", handleJoined);
+            socket.off("room", handleJoined);
         }
     }, [ctx, setUser, handelEnd]); 
 
