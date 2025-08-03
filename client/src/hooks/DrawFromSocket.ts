@@ -34,13 +34,18 @@ export const handleMove = (
 
 
 
-export const drawOnUndo = (
+export const drawAllMoves = (
     ctx:CanvasRenderingContext2D,
+    movesWithoutUser:Move[],
    savedMoves:Move[],
    user:{[key:string]:Move[]}
 ) => {
 
     ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height)
+
+    movesWithoutUser.forEach((move) => {
+        handleMove(move, ctx)
+    })
     Object.values(user).forEach((user) => {
        user.forEach((move) => {
         handleMove(move, ctx)

@@ -49,7 +49,7 @@ io.on("connection", (socket) => {
     const getRoomId = () => {
         const joinedRoom = [...socket.rooms].find((room) => room !== socket.id);
         if (!joinedRoom) {
-            console.warn('No joined room found, falling back to socket.id');
+            //console.warn('No joined room found, falling back to socket.id');
             return socket.id;
         }
         return joinedRoom;
@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
     // join room when user want to join
     socket.on("join_room", (roomId) => {
         console.log("join_room received for room:", roomId);
-        console.log("Available rooms:", [...rooms.keys()]);
+        //console.log("Available rooms:", [...rooms.keys()]);
         if (rooms.has(roomId)) {
             socket.join(roomId);
             // Add user to room data structure immediately
@@ -124,7 +124,7 @@ io.on("connection", (socket) => {
         }
     });
     socket.on("mouse_move", (x, y) => {
-        console.log("mouse_move");
+        //console.log("mouse_move");
         const roomId = getRoomId();
         socket.broadcast.to(roomId).emit("mouse_moved", x, y, socket.id);
     });

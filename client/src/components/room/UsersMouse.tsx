@@ -53,7 +53,7 @@ return(
         {x:position.x+x,y:position.y+y}
     }
     transition={{
-        duration:0.3,ease:"linear"
+        duration:0.1,ease:"linear"
     }}
     >
     <BsCursorFill className="-rotate-90"/>

@@ -21,7 +21,7 @@ useInterval(() => {
          prevPosition.current = {x:docX , y:docY};
     }
 
-},300)
+},25)
 
 
 return (

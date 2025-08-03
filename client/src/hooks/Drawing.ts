@@ -2,16 +2,17 @@
 import {useState,useEffect, useCallback} from "react"
 import {socket} from "@/lib/Socket"
 import { useOptions } from "@/store/Index";
-import { drawOnUndo } from "./DrawFromSocket";
+import { drawAllMoves } from "./DrawFromSocket";
 import {  useUsers} from "@/store/Users";
 import { useBoardPosition } from "@/store/BoardPosition";
 import { getPosition } from "@/lib/GetPosition";
 import { useSetUser } from "@/store/Users";
 import { handleMove } from "./DrawFromSocket";
 
-// eslint-disable-next-line prefer-const
-let savedMoves:Move[] =[];
-let moves:[number,number][] = [];
+
+const movesWithoutUser:Move[] = [];
+const savedMoves:Move[] =[];
+let tempMoves:[number,number][] = [];
 
 export const useDraw = (
     blocked : boolean,
@@ -39,7 +40,7 @@ export const useDraw = (
         if(ctx){
             savedMoves.pop();
             socket.emit("undo")
-            drawOnUndo(ctx,savedMoves,users);
+            drawAllMoves(ctx,movesWithoutUser,savedMoves,users);
             handleEnd();
         }
     },[ctx,handleEnd,users])
@@ -66,6 +67,7 @@ export const useDraw = (
         ctx.beginPath()
         ctx.lineTo(getPosition(x,movedX),getPosition(y,movedY))
         ctx.stroke()
+        tempMoves.push([getPosition(x,movedX),getPosition(y,movedY)])
     }
 
     const handleEndDrawing = () =>{
@@ -75,13 +77,14 @@ export const useDraw = (
         ctx.closePath();
 
         const move:Move = {
-           path:moves,
+           path: tempMoves,
            options
         }
         savedMoves.push(move)
+        tempMoves = []
         socket.emit("draw",move );
-
-        moves = []
+         drawAllMoves(ctx,movesWithoutUser,savedMoves,users);
+        
         handleEnd();
     }
 
@@ -92,7 +95,7 @@ export const useDraw = (
             
          ctx.lineTo(getPosition(x,movedX),getPosition(y,movedY));
          ctx.stroke()
-         moves.push([getPosition(x,movedX),getPosition(y,movedY)]);
+         tempMoves.push([getPosition(x,movedX),getPosition(y,movedY)]);
     }
 
     return{
@@ -111,25 +114,37 @@ export const useSocketDraw = (
 ) => {
     const users = useUsers()
     const setUser = useSetUser();
-    const [pendingRoomData, setPendingRoomData] = useState<string | null>(null);
-
+  
+    useEffect(() => {
+        if (ctx) {
+            socket.emit("joined_room")
+        }
+    }, [ctx])
 
     useEffect(() => {
-        socket.emit("joined_room")
-    },[])
-   
-    useEffect(() => {
-        const handleJoined = (roomJSON: string) => {
-            
-            
-            if (!ctx) {
-               
-                setPendingRoomData(roomJSON);
-                return;
-            }
-            
-            
-            processRoomData(roomJSON, ctx, setUser, handelEnd);
+        const handleJoined = (room:any,usersToParse:any) => {
+            if(!ctx) return;
+
+            const users = new Map<string, Move[]>(JSON.parse(usersToParse));
+
+          room.drawed.forEach((element: any) => {
+                if (element.path && element.path.length > 0) {
+                    handleMove(element, ctx);
+                    movesWithoutUser.push(element);
+                }
+
+            });
+
+            users.forEach((moves: Move[], userId: string) => {
+                if (moves.length > 0) {
+                    moves.forEach((move: Move) => {
+                        handleMove(move, ctx);
+                    });
+                }
+                setUser(userId, moves);
+            });
+
+            handelEnd();
         };
 
 
@@ -141,46 +156,6 @@ export const useSocketDraw = (
         }
     }, [ctx, setUser, handelEnd]); 
 
-    // Process pending room data when ctx becomes available
-    useEffect(() => {
-        if (ctx && pendingRoomData) {
-            //console.log("Canvas now ready, processing pending room data");
-            processRoomData(pendingRoomData, ctx, setUser, handelEnd);
-            setPendingRoomData(null); 
-        }
-    }, [ctx, pendingRoomData, setUser, handelEnd]);
-
-    // Helper function to process room data
-    const processRoomData = (roomJSON: string, context: CanvasRenderingContext2D, setUserFn: any, handleEndFn: () => void) => {
-        try {
-            const room: Room = new Map(JSON.parse(roomJSON));
-           // console.log("Processing room data, canvas context available:", !!context);
-           // console.log("Room data:", room);
-            
-            // Clear canvas before drawing existing moves
-            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-            
-            room.forEach((moves: any, userId: any) => {
-               // console.log(`User ${userId} has ${moves.length} moves`);
-                
-                if (moves.length > 0) {
-                    moves.forEach((move: any) => {
-                        console.log("Drawing move:", move);
-                        handleMove(move, context);
-                    });
-                }
-                
-                // Update user state
-                setUserFn(userId, moves);
-            });
-            
-            // Call handleEnd once after all moves are processed
-            handleEndFn();
-            
-        } catch (error) {
-            console.error("Error processing room data:", error);
-        }
-    };
 
     // Handle real-time drawing from other users
     useEffect(() => {
@@ -225,7 +200,7 @@ export const useSocketDraw = (
 
                 if (ctx) {
                     // Redraw all moves after undo
-                    drawOnUndo(ctx, savedMoves, users);
+                    drawAllMoves(ctx,movesWithoutUser, savedMoves, users);
                     handelEnd();
                 }
             }
