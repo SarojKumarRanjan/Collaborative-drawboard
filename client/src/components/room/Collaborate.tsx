@@ -14,23 +14,25 @@ const Collaborate = () => {
     const [joinRoom,setJoinRoom] = useState<string>()
 
     useEffect(() => {
-        socket.on("created", (roomIdFromServer) => {
+       const handleCreate =  (roomIdFromServer:string) => {
             setRoomId(roomIdFromServer)
             navigate(`/${roomIdFromServer}`)
-        })
+        }
 
-        socket.on("joined", (roomIdFromServer, failed) => {
+        const handleJoined =  (roomIdFromServer:string, failed:boolean) => {
             if (failed) {
                 alert("Failed to join room")
                 return
             }
             setRoomId(roomIdFromServer)
             navigate(`/${roomIdFromServer}`)
-        })
+        }
+        socket.on("created", handleCreate)
+        socket.on("joined", handleJoined)
 
         return () => {
-            socket.off("created")
-            socket.off("joined")
+            socket.off("created", handleCreate)
+            socket.off("joined", handleJoined)
         }
     }, [ navigate, setRoomId ])
 

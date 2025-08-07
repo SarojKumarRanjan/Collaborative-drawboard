@@ -1,32 +1,23 @@
-import { useUsersStore } from "@/store/Users";
 import UsersMouse from "./room/UsersMouse";
-
+import roomStore from "@/store/room.store";
+import { socket } from "@/lib/Socket";
 
 const MouseRenderer = () => {
+    const { users } = roomStore((state) => state);
 
-const {userIds} = useUsersStore()
+    //debugging user cursor positions
+    // in the map
 
-const users = userIds();
-
-
-
-return (
-    <>
-    {
-        users.map((userId) => {
-       
-
-
-            return (
-                <UsersMouse userId={userId} key={userId}/>
-            )
-        })
-    }
-    </>
-)
-
-
-}
-
+    return (
+        <>
+            {[...users?.keys() ?? []].map((userId) => {
+                if (userId === socket.id) return null;
+                return (
+                    <UsersMouse userId={userId} key={userId} />
+                );
+            })}
+        </>
+    );
+};
 
 export default MouseRenderer;

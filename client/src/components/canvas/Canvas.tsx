@@ -6,8 +6,16 @@ import { useRef, useState, useEffect } from "react";
 import { useKeyPressEvent } from "react-use";
 import Minimap from "./MiniMap";
 import { useBoardPosition } from "@/store/BoardPosition";
+import roomStore from "@/store/room.store";
+import { socket } from "@/lib/Socket";
+import { drawAllMoves } from "@/hooks/DrawFromSocket";
 
 const CanvasPage = () => {
+
+
+ const {roomId} = roomStore((state) => state);
+
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const smallCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -38,7 +46,6 @@ const CanvasPage = () => {
     }
   };
 
-  // Set up canvas context - run once and when canvas ref changes
   useEffect(() => {
     if (canvasRef.current) {
       const newCtx = canvasRef.current.getContext("2d");
@@ -64,15 +71,32 @@ const CanvasPage = () => {
     };
   }, [dragging]);
 
+useEffect(() =>{
+  if(ctx){
+    socket.emit("joined_room");
+  }
+},[ctx])
+
+
+useEffect(() => {
+  if(ctx){
+    drawAllMoves(ctx, roomId);
+    copyCanvasToSmall()
+  }
+},[ctx, roomId]);
+
+
   const { handleDraw, handleEndDrawing, handleStartDrawing, handleUndo, drawing } = useDraw(
     dragging,
-    copyCanvasToSmall,
     ctx
   );
 
 
   
-  useSocketDraw(ctx, drawing, copyCanvasToSmall);
+  useSocketDraw(ctx, drawing);
+
+
+
 
   return(
     <div className="relative w-full h-full overflow-hidden">

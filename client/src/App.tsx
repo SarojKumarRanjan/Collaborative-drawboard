@@ -1,4 +1,4 @@
-
+import ModalManager from "./components/portal/Modalmanger";
 import { useUsersStore } from "./store/Users";
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
@@ -21,6 +21,12 @@ const users = useUsersStore((state) => state.userIds)
   return (
    <>
    <Outlet/>
+    <ModalManager />
+    
+    {/* This div is used for React portals, such as modals */}
+   <div id="portal">
+
+   </div>
    
    </>
   )
