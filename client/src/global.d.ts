@@ -10,8 +10,9 @@ export declare global{
     }
 
     type Room = {
-        users :Map<string,Move[]>,
+        usersMoves :Map<string,Move[]>,
         drawed : Move[],
+        users:Map<string,string>
     
     }
    interface serverToClientEvents{

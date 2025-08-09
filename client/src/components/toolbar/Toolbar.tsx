@@ -2,6 +2,7 @@
 
 
 import ColorPicker from "./ColorPicker";
+import LineWidthPicker from "./LineWidthPicker";
 
 
 
@@ -14,6 +15,7 @@ import ColorPicker from "./ColorPicker";
         <div>
             <div className="absolute top-20 left-4 z-50 flex flex-col gap-2">
                 <ColorPicker />
+                <LineWidthPicker />
             </div>
         </div>
     )
