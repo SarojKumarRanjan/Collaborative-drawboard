@@ -32,27 +32,33 @@ export const handleMove = (
     }
 
 
+    interface ClientRoom {
+        users: Map<string, Move[]>;
+        movesWithoutUser: Move[];
+        myMoves: Move[];
+    }
+
 
 
 export const drawAllMoves = (
     ctx:CanvasRenderingContext2D,
-    movesWithoutUser:Move[],
-   savedMoves:Move[],
-   user:{[key:string]:Move[]}
+     room:ClientRoom,
 ) => {
+
+    const {users, movesWithoutUser, myMoves} = room;
 
     ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height)
 
     movesWithoutUser.forEach((move) => {
         handleMove(move, ctx)
     })
-    Object.values(user).forEach((user) => {
-       user.forEach((move) => {
+    users.forEach((moves) => {
+       moves.forEach((move) => {
         handleMove(move, ctx)
        })
     })
 
-    savedMoves.forEach((move) => {
+    myMoves.forEach((move) => {
         handleMove(move, ctx)
     })
 }

@@ -26,7 +26,7 @@ const addMove = (roomId: string, socketId: string, move: Move) => {
     room.users.set(socketId, [move]);
   } 
 
-    // debug this is any error move this outside of the else statement
+    
     room.users.get(socketId)?.push(move);
   
 };
