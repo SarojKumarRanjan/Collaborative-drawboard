@@ -1,6 +1,20 @@
 import {create} from "zustand"
 import { MotionValue,motionValue } from "motion/react"
 
+/*
+
+
+this hook will be treated as room context provider
+ everything related to room provider will be here
+
+
+
+
+*/
+
+
+
+
 interface RoomState {
   x: MotionValue<number>;
   y: MotionValue<number>;
