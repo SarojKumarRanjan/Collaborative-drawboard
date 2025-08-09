@@ -34,3 +34,25 @@ export const modalAnimation = {
         transition
     }
 }
+
+
+export const colorPickerAnimation = {
+
+    from:{
+        y:-30,
+        opacity: 0,
+        transition:{
+            duration: 0.2,
+            ease: DEFAULT_EASE
+        }
+    },
+    to:{
+        y: 0,
+        opacity: 1,
+        transition:{
+            duration: 0.2,
+            ease: DEFAULT_EASE
+        }
+    }
+
+}

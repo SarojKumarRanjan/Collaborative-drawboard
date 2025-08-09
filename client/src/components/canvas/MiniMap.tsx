@@ -26,11 +26,11 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
 
     useEffect(() => {
       miniX.onChange((newX) => {
-        if (!dragging) x.set(-newX * 10);
+        if (!dragging) x.set(-newX * 7);
       });
 
       miniY.onChange((newY) => {
-        if (!dragging) y.set(-newY * 10);
+        if (!dragging) y.set(-newY * 7);
       });
 
       return () => {
@@ -41,11 +41,11 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
 
     return (
       <div
-        className="absolute right-10 top-10 z-50 bg-zinc-300"
+        className="absolute right-10 top-10 z-30 rounded-xl bg-zinc-200"
         ref={containerRef}
         style={{
-          width: CANVAS_SIZE.width / 10,
-          height: CANVAS_SIZE.height / 10,
+          width: CANVAS_SIZE.width / 7,
+          height: CANVAS_SIZE.height / 7,
         }}
       >
         <canvas
@@ -63,14 +63,14 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
             dragElastic={0}
             dragTransition={{ power: 0, timeConstant: 0 }}
             onDragEnd={() => setMovedminimap((prev) => !prev)}
-            className="absolute top-0 left-0 cursor-grab border-2 border-blue-600 box"
+            className="absolute top-0 left-0 cursor-grab border-2 rounded-xl border-blue-600 box"
             style={{
-              width: width / 10,
-              height: height / 10,
+              width: width / 7,
+              height: height / 7,
               x: miniX,
               y: miniY,
             }}
-            animate={{ x: -x.get() / 10, y: -y.get() / 10 }}
+            animate={{ x: -x.get() / 7, y: -y.get() / 7 }}
             transition={{ duration: 0 }}
           />
       </div>

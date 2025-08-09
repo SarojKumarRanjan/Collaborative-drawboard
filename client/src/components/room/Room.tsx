@@ -1,10 +1,10 @@
 import CanvasPage from "../canvas/Canvas"
 import MousePosition from "../MousePosition"
 import MouseRenderer from "../MouseRenderer"
-import Toolbar from "../Toolbar"
 import Collaborate from "./Collaborate"
 import NotFound from "../notFound"
 import { useModalStore } from '@/store/Modal.store';
+import Toolbar from "../toolbar/Toolbar";
 
 const Room = () => {
 
