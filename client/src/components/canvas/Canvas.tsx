@@ -1,19 +1,20 @@
 import { CANVAS_SIZE } from "@/constant";
-import { useDraw, useSocketDraw } from "@/hooks/Drawing";
 import { useViewportSize } from "@/hooks/Viewport";
 import { motion } from "motion/react";
 import { useRef, useState, useEffect } from "react";
 import { useKeyPressEvent } from "react-use";
 import Minimap from "./MiniMap";
 import { useBoardPosition } from "@/store/BoardPosition";
-import roomStore from "@/store/room.store";
 import { socket } from "@/lib/Socket";
 import { drawAllMoves } from "@/hooks/DrawFromSocket";
+import {useDraw} from "@/hooks/useDraw.hook";
+import { useSocketDraw } from "@/hooks/useSocketDraw";
+import roomStore from "@/store/room.store";
 
 const CanvasPage = () => {
 
 
- const {roomId} = roomStore((state) => state);
+const {users,myMoves,movesWithoutUser} = roomStore.getState();
 
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -80,10 +81,10 @@ useEffect(() =>{
 
 useEffect(() => {
   if(ctx){
-    drawAllMoves(ctx, roomId);
+    drawAllMoves(ctx, {users, movesWithoutUser, myMoves});
     copyCanvasToSmall()
   }
-},[ctx, roomId]);
+},[ctx, users, movesWithoutUser, myMoves]);
 
 
   const { handleDraw, handleEndDrawing, handleStartDrawing, handleUndo, drawing } = useDraw(

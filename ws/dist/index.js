@@ -25,7 +25,6 @@ const addMove = (roomId, socketId, move) => {
     if (!room.users.has(socketId)) {
         room.users.set(socketId, [move]);
     }
-    // debug this is any error move this outside of the else statement
     (_a = room.users.get(socketId)) === null || _a === void 0 ? void 0 : _a.push(move);
 };
 const undoMove = (roomId, socketId) => {
