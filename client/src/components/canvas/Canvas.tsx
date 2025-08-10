@@ -14,7 +14,13 @@ import roomStore from "@/store/room.store";
 const CanvasPage = () => {
 
 
-const {users,myMoves,movesWithoutUser} = roomStore.getState();
+const usersMoves = roomStore((state => state.usersMoves));
+const myMoves = roomStore((state) => state.myMoves);
+const movesWithoutUser = roomStore((state) => state.movesWithoutUser);
+
+
+ 
+
 
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -81,10 +87,10 @@ useEffect(() =>{
 
 useEffect(() => {
   if(ctx){
-    drawAllMoves(ctx, {users, movesWithoutUser, myMoves});
+    drawAllMoves(ctx, {usersMoves, movesWithoutUser, myMoves});
     copyCanvasToSmall()
   }
-},[ctx, users, movesWithoutUser, myMoves]);
+},[ctx, usersMoves, movesWithoutUser, myMoves]);
 
 
   const { handleDraw, handleEndDrawing, handleStartDrawing, handleUndo, drawing } = useDraw(

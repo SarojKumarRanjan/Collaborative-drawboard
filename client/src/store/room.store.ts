@@ -1,19 +1,20 @@
 import { create } from "zustand";
 
-interface RoomStore {
+export interface RoomStore {
   roomId: string;
   setRoomId: (roomId: string) => void;
   resetRoomId: () => void;
-  users: Map<string, Move[]>;
+  usersMoves: Map<string, Move[]>;
+  users: Map<string, string>;
   movesWithoutUser: Move[];
   myMoves: Move[];
-  setRoomUsers: (userId: string) => void;
+  setRoomUsers: (userId: string, username: string) => void;
   removeRoomUser: (userId: string) => void;
   handleAddMoveToUser: (userId: string, move: Move) => void;
   handleRemoveMoveFromUser: (userId: string) => void;
   handleMyMoves: (moves: Move) => void;
   handleRemoveMyMove: () => void;
-    handleSetMovesWithoutUser: (moves: Move[]) => void;
+  handleSetMovesWithoutUser: (moves: Move[]) => void;
 }
 
 const roomStore = create<RoomStore>((set) => {
@@ -21,24 +22,30 @@ const roomStore = create<RoomStore>((set) => {
     roomId: "",
     setRoomId: (roomId: string) => set({ roomId }),
     resetRoomId: () => set({ roomId: "" }),
-    users: new Map<string, Move[]>(),
+    usersMoves: new Map<string, Move[]>(),
+    users:new Map<string,string>(),
     movesWithoutUser: [],
     myMoves: [],
-    setRoomUsers: (userId: string) =>
+    setRoomUsers: (userId: string, username: string) =>
       set((state) => {
+        const usersMoves = new Map(state.usersMoves);
         const users = new Map(state.users);
-        if (!users.has(userId)) {
-          users.set(userId, []);
+        users.set(userId, username);
+        if (!usersMoves.has(userId)) {
+          usersMoves.set(userId, []);
         }
-        return { users };
+        return { usersMoves, users };
       }),
     removeRoomUser: (userId: string) =>
       set((state) => {
+        const usersMoves = new Map(state.usersMoves);
         const users = new Map(state.users);
-        const userMoves = users.get(userId);
         users.delete(userId);
+        const userMoves = usersMoves.get(userId);
+        usersMoves.delete(userId);
 
         return {
+          usersMoves,
           users,
           movesWithoutUser: userMoves
             ? [...(state.movesWithoutUser || []), ...userMoves]
@@ -47,24 +54,24 @@ const roomStore = create<RoomStore>((set) => {
       }),
     handleAddMoveToUser: (userId: string, move: Move) =>
       set((state) => {
-        const users = new Map(state.users);
+        const users = new Map(state.usersMoves);
         if (users.has(userId)) {
           const oldMoves = users.get(userId) || [];
           users.set(userId, [...oldMoves, move]);
         } else {
           users.set(userId, [move]);
         }
-        return { users };
+        return { usersMoves: users };
       }),
 
     handleRemoveMoveFromUser: (userId: string) =>
       set((state) => {
-        const users = new Map(state.users);
+        const users = new Map(state.usersMoves);
         if (users.has(userId)) {
           const oldMoves = users.get(userId) || [];
             users.set(userId, oldMoves.slice(0, -1));
         }
-        return { users };
+        return { usersMoves: users };
       }),
 
     handleMyMoves: (moves: Move) =>

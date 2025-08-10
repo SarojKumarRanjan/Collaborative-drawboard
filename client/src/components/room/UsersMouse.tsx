@@ -6,7 +6,7 @@ import {BsCursorFill} from "react-icons/bs"
 
 
 
-const UsersMouse = ({userId}:{userId:string}) =>{
+const UsersMouse = ({userId,username}:{userId:string,username:string}) =>{
     const boardPosition = useBoardPosition();
 
     const [x,setX] = useState(boardPosition.x.get());
@@ -57,6 +57,7 @@ return(
     }}
     >
     <BsCursorFill className="-rotate-90"/>
+    <p>{username}</p>
 
     </motion.div>
 )

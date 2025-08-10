@@ -32,11 +32,6 @@ export const handleMove = (
     }
 
 
-    interface ClientRoom {
-        users: Map<string, Move[]>;
-        movesWithoutUser: Move[];
-        myMoves: Move[];
-    }
 
 
 
@@ -45,14 +40,14 @@ export const drawAllMoves = (
      room:ClientRoom,
 ) => {
 
-    const {users, movesWithoutUser, myMoves} = room;
+    const {usersMoves , movesWithoutUser, myMoves} = room;
 
     ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height)
 
     movesWithoutUser.forEach((move) => {
         handleMove(move, ctx)
     })
-    users.forEach((moves) => {
+    usersMoves.forEach((moves) => {
        moves.forEach((move) => {
         handleMove(move, ctx)
        })

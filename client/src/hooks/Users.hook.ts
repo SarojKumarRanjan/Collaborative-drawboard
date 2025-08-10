@@ -8,19 +8,21 @@ import roomStore from '@/store/room.store';
 
 export const useInitUser = () => {
 
-const {setRoomUsers,handleAddMoveToUser,handleSetMovesWithoutUser,removeRoomUser } = roomStore.getState();
+const {setRoomUsers,handleAddMoveToUser,handleSetMovesWithoutUser,removeRoomUser } = roomStore((state) => (state));
 
 
 
   
   useEffect(() => {
  
-    socket.on("room",(room,usersToParse) => {
+    socket.on("room",(room,usersMovesToParse,usersToParse) => {
       // set the user and moves to the room store
-      const users = new Map<string, Move[]>(JSON.parse(usersToParse) );
-        if(users) {
-          users.forEach((moves, userId) => {
-            setRoomUsers(userId);
+      const users = new Map<string, string>(JSON.parse(usersToParse) );
+      const usersMoves = new Map<string, Move[]>(JSON.parse(usersMovesToParse) );
+        if(users && usersMoves) {
+          users.forEach((username, userId) => {
+            setRoomUsers(userId, username);
+            const moves = usersMoves.get(userId) || [];
             moves.forEach((move) => {
               handleAddMoveToUser(userId, move);
             });
@@ -34,8 +36,8 @@ const {setRoomUsers,handleAddMoveToUser,handleSetMovesWithoutUser,removeRoomUser
     });
 
 
-    socket.on("new_user", (userId) => {
-      setRoomUsers(userId);
+    socket.on("new_user", (userId, username) => {
+      setRoomUsers(userId, username);
     });
 
     socket.on("user_disconnected", (userId) => {

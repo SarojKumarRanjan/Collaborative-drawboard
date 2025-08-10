@@ -11,8 +11,10 @@ export const useDraw = (
   blocked: boolean,
   ctx?: CanvasRenderingContext2D | undefined
 ) => {
-  const { handleMyMoves, handleRemoveMyMove } = roomStore.getState();
-  const { lineColor, lineWidth } = optionStore.getState();
+ const handleMyMoves = roomStore((state) => state.handleMyMoves);
+ const handleRemoveMyMove = roomStore((state) => state.handleRemoveMyMove);
+  const lineColor = optionStore((state) => state.lineColor);
+  const lineWidth = optionStore((state) => state.lineWidth);
 
   const position = useBoardPosition();
   const movedX = position.x;
