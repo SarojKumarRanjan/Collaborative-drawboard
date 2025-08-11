@@ -4,16 +4,25 @@ import { useEffect, useState } from "react";
 import {motion} from "motion/react"
 import {BsCursorFill} from "react-icons/bs"
 import { getRandomColor } from "@/lib/GetNextColor";
+import { colorStore } from "@/store/Options.store";
 
 
 
 const UsersMouse = ({userId,username}:{userId:string,username:string}) =>{
     const boardPosition = useBoardPosition();
+    const setColor = colorStore((state) => state.setColor);
+    const getColor = colorStore((state) => state.getColor);
 
     const [x,setX] = useState(boardPosition.x.get());
     const [y,setY] = useState(boardPosition.y.get());
 
     const [position , setPosition] = useState({x:1,y:1});
+
+
+    useEffect(() => {
+        
+        setColor(userId, getRandomColor());
+    }, [userId, setColor]);
 
     useEffect(() =>{
 
@@ -50,7 +59,7 @@ const UsersMouse = ({userId,username}:{userId:string,username:string}) =>{
 return(
     <motion.div
     style={{
-        color: getRandomColor()
+        color: getColor(userId),
     }}
     className={`absolute top-0 left-0 text-blue-800 ${position.x===-1 && "hidden"} pointer-events-none`}
     animate={

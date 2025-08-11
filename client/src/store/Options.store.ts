@@ -21,3 +21,22 @@ export const optionStore = create<optionStore>((set) => ({
   
   
 }));
+
+
+interface ColorStore{
+  colorMap: Map<string, string>;
+  setColor: (userId: string, color: string) => void;
+  getColor: (userId: string) => string;
+}
+
+export const colorStore = create<ColorStore>((set, get) => ({
+  colorMap: new Map(),
+  setColor: (userId: string, color: string) => {
+    const currentColors = get().colorMap;
+    currentColors.set(userId, color);
+    set({ colorMap: currentColors });
+  },
+  getColor: (userId: string) => {
+    return get().colorMap.get(userId) || "#e0ffff"; 
+  }
+}));
