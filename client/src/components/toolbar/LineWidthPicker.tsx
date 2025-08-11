@@ -1,6 +1,7 @@
 import { optionStore } from "@/store/Options.store";
 import { useState, useRef } from "react";
 import { useClickAway } from "react-use";
+import { MdOutlineMenu } from "react-icons/md";
 
 const LineWidthPicker = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -15,13 +16,14 @@ const LineWidthPicker = () => {
   return (
     <div ref={ref} className="relative">
       <button
-        className="p-2 bg-gray-200 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="p-2 bg-gray-400 rounded hover:bg-gray-300 "
         onClick={() => setIsOpen(!isOpen)}
       >
-        Line Width Picker
+        <MdOutlineMenu className="text-xl" />
+        
       </button>
       {isOpen && (
-        <div className="absolute z-10 bg-white border border-gray-300 rounded shadow-md">
+        <div className="absolute w-50 z-10 bg-white border border-gray-300 rounded shadow-md">
           <input
             className="w-full p-2 border-b-2"
             style={{ accentColor: lineColor }}

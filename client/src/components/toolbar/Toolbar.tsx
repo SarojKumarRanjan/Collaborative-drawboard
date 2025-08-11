@@ -3,6 +3,7 @@
 
 import ColorPicker from "./ColorPicker";
 import LineWidthPicker from "./LineWidthPicker";
+import UserList from "./UserList";
 
 
 
@@ -13,7 +14,8 @@ import LineWidthPicker from "./LineWidthPicker";
 
     return(
         <div>
-            <div className="absolute top-20 left-4 z-50 flex flex-col gap-2">
+            <UserList />
+            <div className="absolute top-40 left-4 z-50 flex flex-col gap-2  ">
                 <ColorPicker />
                 <LineWidthPicker />
             </div>

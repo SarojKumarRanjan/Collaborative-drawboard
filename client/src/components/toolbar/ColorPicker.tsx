@@ -2,6 +2,7 @@ import { optionStore } from "@/store/Options.store";
 import Sketch from '@uiw/react-color-sketch';
 import { useRef, useState } from "react";
 import { useClickAway } from "react-use";
+import { IoColorPalette } from "react-icons/io5";
 
 const ColorPicker = () => {
 
@@ -19,10 +20,10 @@ const [isOpen, setIsOpen] = useState(false);
             ref={ref}
             className="relative">
             <button
-                className="p-2 bg-gray-200 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="p-2 bg-gray-400 rounded hover:bg-gray-300 "
                 onClick={() => setIsOpen(!isOpen)}
             >
-                Color Picker
+                <IoColorPalette className="text-xl" />
             </button>
             {isOpen && (
                 <div >

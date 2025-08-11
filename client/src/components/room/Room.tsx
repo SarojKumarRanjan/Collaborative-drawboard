@@ -17,7 +17,7 @@ const Room = () => {
         <div className="relative h-full w-full overflow-hidden">
            
             
-             <Collaborate /> 
+             {/* <Collaborate />  */}
              <Toolbar /> 
             <CanvasPage />
             
