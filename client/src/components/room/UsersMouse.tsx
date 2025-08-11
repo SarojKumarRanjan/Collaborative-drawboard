@@ -3,10 +3,11 @@ import { useBoardPosition } from "@/store/BoardPosition"
 import { useEffect, useState } from "react";
 import {motion} from "motion/react"
 import {BsCursorFill} from "react-icons/bs"
+import { getRandomColor } from "@/lib/GetNextColor";
 
 
 
-const UsersMouse = ({userId}:{userId:string}) =>{
+const UsersMouse = ({userId,username}:{userId:string,username:string}) =>{
     const boardPosition = useBoardPosition();
 
     const [x,setX] = useState(boardPosition.x.get());
@@ -48,6 +49,9 @@ const UsersMouse = ({userId}:{userId:string}) =>{
 
 return(
     <motion.div
+    style={{
+        color: getRandomColor()
+    }}
     className={`absolute top-0 left-0 text-blue-800 ${position.x===-1 && "hidden"} pointer-events-none`}
     animate={
         {x:position.x+x,y:position.y+y}
@@ -57,6 +61,7 @@ return(
     }}
     >
     <BsCursorFill className="-rotate-90"/>
+    <p>{username}</p>
 
     </motion.div>
 )

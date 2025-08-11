@@ -1,3 +1,7 @@
+import { CANVAS_SIZE } from "@/constant";
+
+
+
 
 
 export const handleMove = (
@@ -32,12 +36,31 @@ export const handleMove = (
     }
 
 
-    interface ClientRoom {
-        users: Map<string, Move[]>;
-        movesWithoutUser: Move[];
-        myMoves: Move[];
+
+
+export const drawBackground = (ctx:CanvasRenderingContext2D ) => {
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#ccc';
+
+    for(let i=0;i<CANVAS_SIZE.height;i+=25){
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(ctx.canvas.width, i);
+        ctx.stroke();
+        ctx.closePath();
     }
 
+
+    for(let i=0;i<CANVAS_SIZE.width;i+=25){
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, ctx.canvas.height);
+        ctx.stroke();
+        ctx.closePath();
+    }
+   
+    
+}
 
 
 export const drawAllMoves = (
@@ -45,14 +68,16 @@ export const drawAllMoves = (
      room:ClientRoom,
 ) => {
 
-    const {users, movesWithoutUser, myMoves} = room;
+    const {usersMoves , movesWithoutUser, myMoves} = room;
 
     ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height)
+    
+    drawBackground(ctx)
 
     movesWithoutUser.forEach((move) => {
         handleMove(move, ctx)
     })
-    users.forEach((moves) => {
+    usersMoves.forEach((moves) => {
        moves.forEach((move) => {
         handleMove(move, ctx)
        })
@@ -62,3 +87,6 @@ export const drawAllMoves = (
         handleMove(move, ctx)
     })
 }
+
+
+

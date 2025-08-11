@@ -7,7 +7,7 @@ export const useSocketDraw = (
   drawing: boolean
 ) => {
   const { handleAddMoveToUser, handleRemoveMoveFromUser } =
-    roomStore.getState();
+    roomStore((state)=> (state));
 
   // Handle real-time drawing from other users
   useEffect(() => {

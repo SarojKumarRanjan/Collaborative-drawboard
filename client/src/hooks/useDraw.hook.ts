@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { socket } from "@/lib/Socket";
-import { useOptions } from "@/store/Index";
 import { useBoardPosition } from "@/store/BoardPosition";
 import { getPosition } from "@/lib/GetPosition";
 import roomStore from "@/store/room.store";
+import {optionStore} from "@/store/Options.store";
 
 let tempMoves: [number, number][] = [];
 
@@ -11,20 +11,22 @@ export const useDraw = (
   blocked: boolean,
   ctx?: CanvasRenderingContext2D | undefined
 ) => {
-  const { handleMyMoves, handleRemoveMyMove } = roomStore.getState();
+ const handleMyMoves = roomStore((state) => state.handleMyMoves);
+ const handleRemoveMyMove = roomStore((state) => state.handleRemoveMyMove);
+  const lineColor = optionStore((state) => state.lineColor);
+  const lineWidth = optionStore((state) => state.lineWidth);
 
   const position = useBoardPosition();
   const movedX = position.x;
   const movedY = position.y;
-  const options = useOptions();
   const [drawing, setDrawing] = useState(false);
 
   useEffect(() => {
     if (ctx) {
       ctx.lineJoin = "round";
       ctx.lineCap = "round";
-      ctx.lineWidth = options.lineWidth;
-      ctx.strokeStyle = options.lineColor;
+      ctx.lineWidth = lineWidth;
+      ctx.strokeStyle = lineColor;
     }
   });
 
@@ -69,7 +71,10 @@ export const useDraw = (
 
     const move: Move = {
       path: tempMoves,
-      options,
+      options:{
+        lineColor: lineColor,
+        lineWidth: lineWidth,
+      },
     };
     handleMyMoves(move);
     tempMoves = [];

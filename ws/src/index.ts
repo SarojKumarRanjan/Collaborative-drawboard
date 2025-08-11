@@ -22,18 +22,22 @@ const addMove = (roomId: string, socketId: string, move: Move) => {
     console.error(`Room ${roomId} not found!`);
     return;
   }
-  if (!room.users.has(socketId)) {
-    room.users.set(socketId, [move]);
-  } 
+  if (!room.usersMoves.has(socketId)) {
+    room.usersMoves.set(socketId, []);
+  }
 
-    
-    room.users.get(socketId)?.push(move);
+
+  room.usersMoves.get(socketId)?.push(move);
+  
+
+
+  
   
 };
 
 const undoMove = (roomId: string, socketId: string) => {
   const room = rooms.get(roomId);
-  const moves = room?.users.get(socketId);
+  const moves = room?.usersMoves.get(socketId);
   if (moves && moves.length > 0) {
     moves.pop();
   }
@@ -41,11 +45,24 @@ const undoMove = (roomId: string, socketId: string) => {
 
 const leaveRoom = (roomId: string,socketId: string) => {
   const room = rooms.get(roomId);
- const userMoves = room?.users.get(socketId);
+
+  if (!room) {
+    
+    return;
+  }
+ const userMoves = room?.usersMoves.get(socketId);
+ if(userMoves && userMoves.length > 0) {
  room?.drawed.push(...(userMoves || []));
+  }
+  room?.usersMoves.delete(socketId);
   room?.users.delete(socketId);
 
   console.log(`User ${socketId} left room ${roomId}`);
+
+  if (room.users.size === 0) {
+    rooms.delete(roomId);
+    console.log(`Room ${roomId} deleted as it has no users left`);
+  } 
 
 };
 
@@ -62,7 +79,7 @@ io.on("connection", (socket) => {
   };
 
   
-  socket.on("create_room", () => {
+  socket.on("create_room", (username) => {
     console.log("create room received");
     
     let roomId: string;
@@ -73,25 +90,28 @@ io.on("connection", (socket) => {
 
     socket.join(roomId);
 
-    rooms.set(roomId,{ users: new Map<string, Move[]>(), drawed: [] });
-    rooms.get(roomId)?.users.set(socket.id, []); 
+    rooms.set(roomId,{ usersMoves: new Map<string, Move[]>( [[socket.id, []]]), drawed: [], users: new Map<string, string>([[socket.id, username]]) });
 
     console.log(`Room ${roomId} created with user ${socket.id}`);
     io.to(socket.id).emit("created", roomId);
   });
 
   
-  socket.on("join_room", (roomId: string) => {
+  socket.on("join_room", (roomId: string,username:string) => {
     console.log("join_room received for room:", roomId);
-    
+    if (!roomId || roomId.trim() === "") {
+      console.error("Invalid room ID provided");
+      return;
+    }
     
     if (rooms.has(roomId)) {
       socket.join(roomId);
       
      
       const room = rooms.get(roomId);
-      if (room && !room.users.has(socket.id)) {
-        room.users.set(socket.id, []);
+      if (room && !room.usersMoves.has(socket.id) && !room.users.has(socket.id)) {
+        room.usersMoves.set(socket.id, []);
+        room.users.set(socket.id, username);
       }
       
       console.log(`User ${socket.id} joined room ${roomId}`);
@@ -99,6 +119,19 @@ io.on("connection", (socket) => {
     } else {
       console.log("Room not found:", roomId);
       io.to(socket.id).emit("joined", "", true);
+    }
+  });
+
+
+  // listen to check if room exists
+  socket.on("check_room", (roomId: string) => {
+    console.log("check_room received for room:", roomId);
+    if (rooms.has(roomId)) {
+      console.log(`Room ${roomId} exists`);
+      io.to(socket.id).emit("room_exists", true);
+    } else {
+      console.log(`Room ${roomId} does not exist`);
+      io.to(socket.id).emit("room_exists", false);
     }
   });
 
@@ -114,12 +147,13 @@ io.on("connection", (socket) => {
 
     if (room) {
       
-      if (!room.users.has(socket.id)) {
-        room.users.set(socket.id, []);
+      if (!room.usersMoves.has(socket.id)) {
+        room.usersMoves.set(socket.id, []);
       }
       
-      io.to(socket.id).emit("room",room, JSON.stringify([...room.users])); 
-      socket.broadcast.to(roomId).emit("new_user", socket.id);
+      io.to(socket.id).emit("room",room, JSON.stringify([...room.usersMoves]), JSON.stringify([...room.users])); 
+      const username = room.users.get(socket.id) || "Unknown User";
+      socket.broadcast.to(roomId).emit("new_user", socket.id, username);
       console.log(`User ${socket.id} successfully joined room ${roomId}`);
     } 
   });

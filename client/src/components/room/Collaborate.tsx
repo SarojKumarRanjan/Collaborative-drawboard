@@ -4,6 +4,11 @@ import { useEffect, useState,  } from "react"
 import { socket } from "@/lib/Socket"
 import roomStore from '@/store/room.store';
 
+//function to return random four letter string
+const randomFourLetterString = () => {
+    return Math.random().toString(36).substring(2, 6);
+}
+
 
 const Collaborate = () => {
 
@@ -39,12 +44,12 @@ const Collaborate = () => {
     console.log(roomid);
 
     const handleCreateroom = () => {
-        socket.emit("create_room")
+        socket.emit("create_room", randomFourLetterString())
     }
 
-    const handleJoinRoom = (e:any) => {
+    const handleJoinRoom = (e: any) => {
         e.preventDefault();
-        socket.emit("join_room", joinRoom)
+        socket.emit("join_room", joinRoom, randomFourLetterString())
     }
     return (
         <div className=" h-full w-full overflow-hidden">
