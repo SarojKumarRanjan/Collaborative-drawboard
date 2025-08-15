@@ -178,8 +178,18 @@ io.on("connection", (socket) => {
     console.log("draw");
     
     const roomId = getRoomId();
-    addMove(roomId, socket.id, move);
-    socket.broadcast.to(roomId).emit("user_draw", move, socket.id);
+
+    const timestamp = Date.now();
+    addMove(roomId, socket.id, {...move, timestamp});
+    io.to(socket.id).emit("your_moves", { ...move, timestamp });
+    socket.broadcast.to(roomId).emit("user_draw",{... move,timestamp}, socket.id);
+  });
+
+  socket.on("send_msg", (msg: Message) => {
+    console.log("send_msg");
+    const roomId = getRoomId();
+    const timestamp = Date.now();
+    io.to(roomId).emit("new_msg",  socket.id,msg, timestamp);
   });
 
   socket.on("undo", () => {

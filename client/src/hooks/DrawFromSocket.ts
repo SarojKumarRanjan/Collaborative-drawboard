@@ -1,4 +1,4 @@
-import { CANVAS_SIZE } from "@/constant";
+
 
 
 
@@ -21,6 +21,10 @@ export const handleMove = (
             tempCtx.lineWidth = options.lineWidth
             tempCtx.strokeStyle = options.lineColor
 
+            if(move.eraser){
+                tempCtx.globalCompositeOperation = "destination-out";
+            }
+
             tempCtx.beginPath()
 
             path.forEach(([x,y]) =>{
@@ -30,7 +34,9 @@ export const handleMove = (
             })
             tempCtx.stroke()
             tempCtx.closePath()
-           
+
+
+           tempCtx.globalCompositeOperation = "source-over";
         }
 
     }
@@ -38,29 +44,6 @@ export const handleMove = (
 
 
 
-export const drawBackground = (ctx:CanvasRenderingContext2D ) => {
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = '#ccc';
-
-    for(let i=0;i<CANVAS_SIZE.height;i+=25){
-        ctx.beginPath();
-        ctx.moveTo(0, i);
-        ctx.lineTo(ctx.canvas.width, i);
-        ctx.stroke();
-        ctx.closePath();
-    }
-
-
-    for(let i=0;i<CANVAS_SIZE.width;i+=25){
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, ctx.canvas.height);
-        ctx.stroke();
-        ctx.closePath();
-    }
-   
-    
-}
 
 
 export const drawAllMoves = (
@@ -71,21 +54,23 @@ export const drawAllMoves = (
     const {usersMoves , movesWithoutUser, myMoves} = room;
 
     ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height)
-    
-    drawBackground(ctx)
 
-    movesWithoutUser.forEach((move) => {
-        handleMove(move, ctx)
-    })
-    usersMoves.forEach((moves) => {
-       moves.forEach((move) => {
-        handleMove(move, ctx)
+    console.log("Drawing all moves",usersMoves, movesWithoutUser, myMoves);
+
+   const moves = [...movesWithoutUser,...myMoves]
+    usersMoves.forEach((movesss) => {
+       movesss.forEach((move) => {
+        moves.push(move)
+
        })
     })
 
-    myMoves.forEach((move) => {
+    moves.sort((a,b) => a.timestamp - b.timestamp)
+
+    moves.forEach((move) => {
         handleMove(move, ctx)
     })
+
 }
 
 

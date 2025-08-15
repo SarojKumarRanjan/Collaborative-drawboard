@@ -10,8 +10,9 @@ import { drawAllMoves } from "@/hooks/DrawFromSocket";
 import {useDraw} from "@/hooks/useDraw.hook";
 import { useSocketDraw } from "@/hooks/useSocketDraw";
 import roomStore from "@/store/room.store";
+import Background from "../toolbar/Background";
 
-const CanvasPage = () => {
+const CanvasPage = ({undoRef}: {undoRef: React.RefObject<HTMLButtonElement>}) => {
 
 
 const usersMoves = roomStore((state => state.usersMoves));
@@ -30,6 +31,12 @@ const movesWithoutUser = roomStore((state) => state.movesWithoutUser);
   const [dragging, setDragging] = useState(false);
   const [, setMovedminimap] = useState(false);
   const { height, width } = useViewportSize();
+
+
+    const { handleDraw, handleEndDrawing, handleStartDrawing, handleUndo, drawing } = useDraw(
+    dragging,
+    ctx
+  );
 
   useKeyPressEvent("Control", (e) => {
     if (e.ctrlKey && !dragging) setDragging(true);
@@ -73,10 +80,14 @@ const movesWithoutUser = roomStore((state) => state.movesWithoutUser);
 
     window.addEventListener("keyup", handleKeyUp);
 
+    const undoBtn = undoRef.current;
+    undoBtn?.addEventListener("click", handleUndo);
+
     return () => {
       window.removeEventListener("keyup", handleKeyUp);
+      undoBtn?.removeEventListener("click", handleUndo);
     };
-  }, [dragging]);
+  }, [dragging, undoRef,handleUndo]);
 
 useEffect(() =>{
   if(ctx){
@@ -93,10 +104,7 @@ useEffect(() => {
 },[ctx, usersMoves, movesWithoutUser, myMoves]);
 
 
-  const { handleDraw, handleEndDrawing, handleStartDrawing, handleUndo, drawing } = useDraw(
-    dragging,
-    ctx
-  );
+
 
 
   
@@ -106,15 +114,13 @@ useEffect(() => {
 
 
   return(
-    <div className="relative w-full h-full overflow-hidden">
-      <button className="absolute top-0" onClick={handleUndo}>
-        undo
-      </button>
+    <div className="relative w-full h-full  overflow-hidden">
+      <Background />
       <motion.canvas
         ref={canvasRef}
         width={CANVAS_SIZE.width}
         height={CANVAS_SIZE.height}
-        className={`${dragging && 'cursor-move'}`}
+        className={`absolute  z-10 ${dragging && 'cursor-move'}`}
         style={{x, y}}
         drag={dragging}
         dragConstraints={{
@@ -140,7 +146,7 @@ useEffect(() => {
           handleDraw(e.changedTouches[0].clientX, e.changedTouches[0].clientY)
         }}
       />
-
+      
       <Minimap
         ref={smallCanvasRef}
         x={x}
@@ -148,6 +154,7 @@ useEffect(() => {
         dragging={dragging}
         setMovedminimap={setMovedminimap}
       />
+      
     </div>
   )
 };

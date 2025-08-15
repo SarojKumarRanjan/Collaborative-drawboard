@@ -6,6 +6,7 @@ interface optionStore extends CtxOptions{
 
   setLineWidth:(width: number) => void;
   setLineColor:(color: string) => void;
+  setErase: (erase: boolean) => void;
 
 }
 
@@ -18,6 +19,8 @@ export const optionStore = create<optionStore>((set) => ({
   ...initialData,
   setLineWidth: (width: number) => set((state) => ({ ...state, lineWidth: width })),
   setLineColor: (color: string) => set((state) => ({ ...state, lineColor: color })),
+  erase: false,
+  setErase: (erase: boolean) => set((state) => ({ ...state, erase })),
   
   
 }));
