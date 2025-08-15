@@ -1,25 +1,32 @@
+import { colorStore } from "@/store/Options.store";
 import roomStore from "@/store/room.store";
 
 const UserList = () => {
 
-    //const { users } = roomStore((state) => state);
+    const { users } = roomStore((state) => state);
 
   // dummy users data of map<string, string>
+ 
+  const getColor = colorStore((state) => state.getColor);
+ 
 
-
-  const users = new Map<string, string>([
-      ["user1", "Alice"],
-      ["user2", "Bob"],
-      ["user3", "Charlie"],
-      ["user4", "David"]
-  ]);
 
     return (
         <div className="pointer-events-none absolute  z-10 flex gap-1 p-5 ">
         {/* User list content goes here */}
             <ul className="flex ">
                 {[...users.keys()].map((user) => (
-                    <li key={user} className="bg-gray-400 p-2  rounded-full shadow-md">
+                    <li key={user} style={{
+                        backgroundColor: getColor(user),
+                        backgroundBlendMode: "multiply",
+                        fontSize: "1rem",
+                        width: "2rem",
+                        height: "2rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textAlign: "center"
+                    }} className="  p-2  rounded-full shadow-md">
                         {users.get(user)?.split("")[0] || "A"}
                     </li>
                 ))}

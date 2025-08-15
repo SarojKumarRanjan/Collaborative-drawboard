@@ -134,8 +134,16 @@ io.on("connection", (socket) => {
     socket.on("draw", (move) => {
         console.log("draw");
         const roomId = getRoomId();
-        addMove(roomId, socket.id, move);
-        socket.broadcast.to(roomId).emit("user_draw", move, socket.id);
+        const timestamp = Date.now();
+        addMove(roomId, socket.id, Object.assign(Object.assign({}, move), { timestamp }));
+        io.to(socket.id).emit("your_moves", Object.assign(Object.assign({}, move), { timestamp }));
+        socket.broadcast.to(roomId).emit("user_draw", Object.assign(Object.assign({}, move), { timestamp }), socket.id);
+    });
+    socket.on("send_msg", (msg) => {
+        console.log("send_msg");
+        const roomId = getRoomId();
+        const timestamp = Date.now();
+        io.to(roomId).emit("new_msg", socket.id, msg, timestamp);
     });
     socket.on("undo", () => {
         console.log("undo");

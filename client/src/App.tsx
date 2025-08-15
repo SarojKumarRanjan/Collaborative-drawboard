@@ -11,7 +11,7 @@ useInitUser();
 
 
   return (
-   <>
+   <div className="max-w-screen max-h-screen overflow-hidden ">
    <Outlet/>
     <ModalManager />
     
@@ -20,7 +20,7 @@ useInitUser();
 
    </div>
    
-   </>
+   </div>
   )
 }
 

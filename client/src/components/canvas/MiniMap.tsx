@@ -41,7 +41,7 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
 
     return (
       <div
-        className="absolute right-10 top-10 z-30 rounded-xl bg-zinc-200"
+        className="absolute top-5 right-5 z-30  rounded-xl bg-zinc-100 shadow-md"
         ref={containerRef}
         style={{
           width: CANVAS_SIZE.width / 7,

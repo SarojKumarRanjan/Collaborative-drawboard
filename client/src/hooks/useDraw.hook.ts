@@ -15,6 +15,7 @@ export const useDraw = (
  const handleRemoveMyMove = roomStore((state) => state.handleRemoveMyMove);
   const lineColor = optionStore((state) => state.lineColor);
   const lineWidth = optionStore((state) => state.lineWidth);
+  const erase = optionStore((state) => state.erase);
 
   const position = useBoardPosition();
   const movedX = position.x;
@@ -27,8 +28,24 @@ export const useDraw = (
       ctx.lineCap = "round";
       ctx.lineWidth = lineWidth;
       ctx.strokeStyle = lineColor;
+      if(erase){
+        ctx.globalCompositeOperation = "destination-out";
+
+      }
     }
   });
+
+  useEffect(() =>{
+    socket.on("your_move",(move) => {
+      console.log("mymoves",move);
+      
+      handleMyMoves(move);
+    })
+
+    return()=>{
+      socket.off("your_move");
+    }
+  },[handleMyMoves])
 
   //handle undo function
   const handleUndo = useCallback(() => {
@@ -74,10 +91,14 @@ export const useDraw = (
       options:{
         lineColor: lineColor,
         lineWidth: lineWidth,
+        erase: erase,
       },
+      timestamp: 0,
+      eraser: erase
     };
-    handleMyMoves(move);
+   
     tempMoves = [];
+    ctx.globalCompositeOperation = "source-over";
     socket.emit("draw", move);
   };
 
@@ -86,11 +107,13 @@ export const useDraw = (
       return;
     }
 
+   
     ctx.lineTo(getPosition(x, movedX), getPosition(y, movedY));
     ctx.stroke();
     tempMoves.push([getPosition(x, movedX), getPosition(y, movedY)]);
   };
-
+ 
+  
   return {
     handleDraw,
     handleStartDrawing,
