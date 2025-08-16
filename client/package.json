@@ -13,6 +13,7 @@
     "@tailwindcss/vite": "^4.1.7",
     "@types/node": "^22.15.18",
     "@uiw/react-color-sketch": "^2.7.3",
+    "flowbite-react": "^0.12.7",
     "motion": "^12.12.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

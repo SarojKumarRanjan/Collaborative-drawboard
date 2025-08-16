@@ -55,11 +55,16 @@ export const drawAllMoves = (
 
     ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height)
 
-   // console.log("Drawing all moves",usersMoves, movesWithoutUser, myMoves);
+   
 
    const moves = [...movesWithoutUser,...myMoves]
     usersMoves.forEach((movesss) => {
-       console.log(movesss);
+        
+        
+
+        movesss.forEach((move) => {
+           moves.push(move);
+        })
     })
 
     moves.sort((a,b) => a.timestamp - b.timestamp)

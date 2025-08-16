@@ -23,11 +23,12 @@ const LineWidthPicker = () => {
         
       </button>
       {isOpen && (
-        <div className="absolute w-50 z-10 bg-white border border-gray-300 rounded shadow-md">
+        <div className="absolute left-14 top-0 w-48 bg-white/90 backdrop-blur-md border border-gray-200 rounded-xl shadow-lg p-3">
+          <label className="block text-sm font-medium text-gray-600 mb-2">
+            Line Width: <span className="font-bold">{lineWidth}</span>
+          </label>
           <input
-            className="w-full p-2 border-b-2"
-            style={{ accentColor: lineColor }}
-
+            className={`w-full ${lineColor}  cursor-pointer`}
             type="range"
             min={1}
             max={20}
@@ -35,6 +36,7 @@ const LineWidthPicker = () => {
             onChange={(e) => setLineWidth(parseInt(e.target.value, 10))}
           />
         </div>
+
       )}
     </div>
   );

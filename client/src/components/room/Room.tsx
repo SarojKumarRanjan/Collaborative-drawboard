@@ -1,7 +1,7 @@
 import CanvasPage from "../canvas/Canvas"
 import MousePosition from "../MousePosition"
 import MouseRenderer from "../MouseRenderer"
-import Collaborate from "./Collaborate"
+
 import NotFound from "../notFound"
 import { useModalStore } from '@/store/Modal.store';
 import Toolbar from "../toolbar/Toolbar";
@@ -21,7 +21,7 @@ const Room = () => {
         <div className="h-svh w-svw  overflow-hidden">
            
             
-                <Collaborate />  
+                
              <Toolbar undoRef={undoRef} /> 
             <CanvasPage undoRef={undoRef} />
             

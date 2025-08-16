@@ -4,12 +4,13 @@ import { motion } from "motion/react";
 import { useRef, useState, useEffect, useCallback } from "react";
 import Minimap from "./MiniMap";
 import { useBoardPosition } from "@/store/BoardPosition";
-import { socket } from "@/lib/Socket";
 import { drawAllMoves } from "@/hooks/DrawFromSocket";
 import { useDraw } from "@/hooks/useDraw.hook";
 import { useSocketDraw } from "@/hooks/useSocketDraw";
 import roomStore from "@/store/room.store";
 import Background from "../toolbar/Background";
+import { useParams } from "react-router-dom";
+import { socket } from "@/lib/Socket";
 
 const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }) => {
   const usersMoves = roomStore((state) => state.usersMoves);
@@ -23,6 +24,8 @@ const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }
   const [dragging, setDragging] = useState(false);
   const [, setMovedminimap] = useState(false);
   const { height, width } = useViewportSize();
+
+  const { roomid } = useParams<{ roomid?: string }>();
 
   const { handleDraw, handleEndDrawing, handleStartDrawing, handleUndo, drawing } = useDraw(
     dragging,
@@ -98,11 +101,7 @@ const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }
   }, [undoRef, handleUndo]);
 
  
-  useEffect(() => {
-    if (ctx) {
-      socket.emit("joined_room");
-    }
-  }, [ctx]);
+
 
   
   useEffect(() => {
@@ -111,6 +110,12 @@ const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }
       copyCanvasToSmall();
     }
   }, [ctx, usersMoves, movesWithoutUser, myMoves, copyCanvasToSmall]);
+
+  useEffect(()=>{
+    if (ctx && roomid) {
+      socket.emit("joined_room");
+    }
+  }, [ctx, roomid]);
 
   useSocketDraw(ctx, drawing);
 
