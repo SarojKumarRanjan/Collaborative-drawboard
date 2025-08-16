@@ -3,7 +3,7 @@ import roomStore from "@/store/room.store";
 
 const UserList = () => {
 
-    const { users } = roomStore((state) => state);
+    const  users  = roomStore((state) => state.users);
 
   // dummy users data of map<string, string>
  
@@ -12,7 +12,7 @@ const UserList = () => {
 
 
     return (
-        <div className="pointer-events-none absolute  z-10 flex gap-1 p-5 ">
+        <div className="pointer-events-none absolute  z-20 flex gap-1 p-5 ">
         {/* User list content goes here */}
             <ul className="flex ">
                 {[...users.keys()].map((user) => (

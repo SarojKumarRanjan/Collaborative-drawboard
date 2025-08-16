@@ -116,10 +116,7 @@ io.on("connection", (socket) => {
       
       console.log(`User ${socket.id} joined room ${roomId}`);
       io.to(socket.id).emit("joined", roomId);
-    } else {
-      console.log("Room not found:", roomId);
-      io.to(socket.id).emit("joined", "", true);
-    }
+    } 
   });
 
 

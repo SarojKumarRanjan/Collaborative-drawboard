@@ -1,13 +1,8 @@
-import {   forwardRef,  useEffect, useRef } from "react";
+import {   forwardRef,  useEffect, useRef, useState } from "react";
 import type {Dispatch,SetStateAction} from "react"
 import { MotionValue, useMotionValue , motion} from "motion/react";
 import { useViewportSize } from "@/hooks/Viewport";
 import { CANVAS_SIZE } from "@/constant";
-
-
-
-
-
 
 type MiniMapProps = {
   x: MotionValue<number>;
@@ -20,24 +15,38 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
   ({ x, y, dragging, setMovedminimap }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const { height, width } = useViewportSize();
+    
+    const [isDraggingMinimap, setIsDraggingMinimap] = useState(false);
 
     const miniX = useMotionValue(0);
     const miniY = useMotionValue(0);
 
+    
     useEffect(() => {
-      miniX.onChange((newX) => {
-        if (!dragging) x.set(-newX * 7);
+      if (!isDraggingMinimap) {
+        miniX.set(-x.get() / 7);
+        miniY.set(-y.get() / 7);
+      }
+    }, [ isDraggingMinimap, miniX, miniY,x,y]);
+
+    useEffect(() => {
+      const unsubscribeX = miniX.onChange((newX) => {
+        if (!dragging && isDraggingMinimap) {
+          x.set(-newX * 7);
+        }
       });
 
-      miniY.onChange((newY) => {
-        if (!dragging) y.set(-newY * 7);
+      const unsubscribeY = miniY.onChange((newY) => {
+        if (!dragging && isDraggingMinimap) {
+          y.set(-newY * 7);
+        }
       });
 
       return () => {
-        miniX.clearListeners();
-        miniY.clearListeners();
+        unsubscribeX();
+        unsubscribeY();
       };
-    }, [x, y, miniX, miniY, dragging]);
+    }, [x, y, miniX, miniY, dragging, isDraggingMinimap]);
 
     return (
       <div
@@ -53,26 +62,26 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
           width={CANVAS_SIZE.width}
           height={CANVAS_SIZE.height}
           className="h-full w-full"
-        >
-          
-        </canvas>
+        />
 
         <motion.div
-            drag
-            dragConstraints={containerRef}
-            dragElastic={0}
-            dragTransition={{ power: 0, timeConstant: 0 }}
-            onDragEnd={() => setMovedminimap((prev) => !prev)}
-            className="absolute top-0 left-0 cursor-grab border-2 rounded-xl border-blue-600 box"
-            style={{
-              width: width / 7,
-              height: height / 7,
-              x: miniX,
-              y: miniY,
-            }}
-            animate={{ x: -x.get() / 7, y: -y.get() / 7 }}
-            transition={{ duration: 0 }}
-          />
+          drag
+          dragConstraints={containerRef}
+          dragElastic={0}
+          dragTransition={{ power: 0, timeConstant: 0 }}
+          onDragStart={() => setIsDraggingMinimap(true)}
+          onDragEnd={() => {
+            setIsDraggingMinimap(false);
+            setMovedminimap((prev) => !prev);
+          }}
+          className="absolute top-0 left-0 cursor-grab border-2 rounded-xl border-blue-600 box active:cursor-grabbing"
+          style={{
+            width: width / 7,
+            height: height / 7,
+            x: miniX,
+            y: miniY,
+          }}
+        />
       </div>
     );
   }

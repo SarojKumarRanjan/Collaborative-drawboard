@@ -21,7 +21,7 @@ const Room = () => {
         <div className="h-svh w-svw  overflow-hidden">
            
             
-           {/*     <Collaborate />  */}
+                <Collaborate />  
              <Toolbar undoRef={undoRef} /> 
             <CanvasPage undoRef={undoRef} />
             
