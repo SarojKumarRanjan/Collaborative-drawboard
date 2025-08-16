@@ -52,7 +52,7 @@ const Collaborate = () => {
         socket.emit("join_room", joinRoom, randomFourLetterString())
     }
     return (
-        <div className=" h-full w-full overflow-hidden">
+        <div className=" ">
             <button 
                 className="absolute top-0 right-0 z-50 flex gap-5 bg-black text-white p-2 m-2" 
                 onClick={handleCreateroom}

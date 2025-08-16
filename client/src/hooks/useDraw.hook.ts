@@ -36,14 +36,14 @@ export const useDraw = (
   });
 
   useEffect(() =>{
-    socket.on("your_move",(move) => {
+    socket.on("your_moves",(move) => {
       console.log("mymoves",move);
       
       handleMyMoves(move);
     })
 
     return()=>{
-      socket.off("your_move");
+      socket.off("your_moves");
     }
   },[handleMyMoves])
 

@@ -77,13 +77,14 @@ const roomStore = create<RoomStore>((set) => {
     handleMyMoves: (moves: Move) =>
       set((state) => {
         const myMoves = state.myMoves ? [...state.myMoves, moves] : [moves];
+         //console.log("My moves", myMoves);
         return { myMoves };
       }),
 
     handleRemoveMyMove: () =>
       set((state) => {
         const myMoves = state.myMoves ? [...state.myMoves] : [];
-        console.log(myMoves);
+        //console.log(myMoves);
         
         if (myMoves.length > 0) {
           myMoves.pop();
