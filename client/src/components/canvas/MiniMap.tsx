@@ -1,8 +1,9 @@
-import {   forwardRef,  useEffect, useRef, useState } from "react";
-import type {Dispatch,SetStateAction} from "react"
+import {    useEffect, useRef, useState } from "react";
+
 import { MotionValue, useMotionValue , motion} from "motion/react";
 import { useViewportSize } from "@/hooks/Viewport";
 import { CANVAS_SIZE } from "@/constant";
+import useRefStore from "@/store/Refs.store";
 
 type MiniMapProps = {
   x: MotionValue<number>;
@@ -11,8 +12,9 @@ type MiniMapProps = {
   setMovedminimap: Dispatch<SetStateAction<boolean>>;
 };
 
-const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
-  ({ x, y, dragging, setMovedminimap }, ref) => {
+const Minimap = ({ x, y, dragging, setMovedminimap }: MiniMapProps) => {
+
+    const smallCanvasRef = useRefStore((state) => state.smallCanvasRef);
     const containerRef = useRef<HTMLDivElement>(null);
     const { height, width } = useViewportSize();
     
@@ -58,7 +60,7 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
         }}
       >
         <canvas
-          ref={ref}
+          ref={smallCanvasRef}
           width={CANVAS_SIZE.width}
           height={CANVAS_SIZE.height}
           className="h-full w-full"
@@ -72,7 +74,7 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
           onDragStart={() => setIsDraggingMinimap(true)}
           onDragEnd={() => {
             setIsDraggingMinimap(false);
-            setMovedminimap((prev) => !prev);
+            setMovedminimap((prev:boolean) => !prev);
           }}
           className="absolute top-0 left-0 cursor-grab border-2 rounded-xl border-blue-600 box active:cursor-grabbing"
           style={{
@@ -85,7 +87,7 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
       </div>
     );
   }
-);
+
 
 Minimap.displayName = "Minimap";
 

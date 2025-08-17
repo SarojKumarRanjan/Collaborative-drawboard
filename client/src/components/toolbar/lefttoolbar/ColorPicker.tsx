@@ -20,7 +20,7 @@ const [isOpen, setIsOpen] = useState(false);
             ref={ref}
             className="relative">
             <button
-                className="p-2 bg-gray-400 rounded hover:bg-gray-300 "
+                className=" "
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <IoColorPalette className="text-xl" />

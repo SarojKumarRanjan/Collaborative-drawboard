@@ -4,10 +4,36 @@ import UserList from "../UserList";
 import Eraser from "./Eraser";
 import { FaUndo } from "react-icons/fa";
 import Collaborate from "@/components/room/Collaborate";
+import refStore from "@/store/Refs.store";
+import { CANVAS_SIZE } from "@/constant";
+import { HiOutlineDownload } from "react-icons/hi";
+import ImageInput from "./ImageInput";
 
-const Toolbar = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }) => {
+const Toolbar = () => {
+
+  const undoRef = refStore((state) => state.undoRef);
+  const canvasRef = refStore((state) => state.canvasRef);
+  const bgRef = refStore((state) => state.bgRef);
+
+  const handleDownload = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = CANVAS_SIZE.width;
+    canvas.height = CANVAS_SIZE.height;
+    const ctx = canvas.getContext("2d");
+    if (ctx && canvasRef.current && bgRef.current) {
+      ctx.drawImage(canvasRef.current, 0, 0);
+      ctx.drawImage(bgRef.current, 0, 0);
+      
+    }
+
+    const link = document.createElement("a");
+      link.download = "canvas.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+  };
+
   const baseBtn =
-    "w-12 h-12 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 transition";
+    " flex items-center p-2 justify-center rounded-md hover:bg-gray-300  transition";
 
   return (
     <div>
@@ -15,7 +41,7 @@ const Toolbar = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }) =
       <UserList />
 
       
-      <div className="absolute top-40 left-4 z-50 flex flex-col gap-3 bg-zinc-400/80 backdrop-blur-md p-3 rounded-2xl shadow-lg border border-gray-200">
+      <div className="absolute top-40 left-4 z-50 flex flex-col gap-1 bg-zinc-400/80 backdrop-blur-md p-3 rounded-2xl shadow-lg border border-gray-200">
         
         
         <div className={baseBtn}>
@@ -24,7 +50,7 @@ const Toolbar = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }) =
 
        
         <div className={baseBtn}> 
-        <div className="flex items-center  justify-center bg-gray-400 rounded hover:bg-gray-300">
+        <div className="flex items-center  justify-center">
           <button
             ref={undoRef}
             className="p-2"
@@ -37,7 +63,7 @@ const Toolbar = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }) =
 
        
         <div className={baseBtn}>
-          <div className="w-full h-full flex items-center justify-center">
+          <div className=" flex items-center justify-center">
             <ColorPicker />
           </div>
         </div>
@@ -49,11 +75,27 @@ const Toolbar = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }) =
           </div>
         </div>
 
-        
         <div className={baseBtn}>
           <div className="w-full h-full flex items-center justify-center">
+            <ImageInput />
+          </div>
+        </div>
+
+        
+        <div className={baseBtn}>
+          <div className=" flex items-center justify-center">
             <Eraser />
           </div>
+        </div>
+        <div className={baseBtn}> 
+        <div className="flex items-center  justify-center  rounded ">
+          <button
+            onClick={handleDownload}
+            className=""
+          >
+            <HiOutlineDownload size={18} />
+          </button>
+        </div>
         </div>
       </div>
     </div>

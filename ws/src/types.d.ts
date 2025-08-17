@@ -1,6 +1,6 @@
 export declare global{
 
-    type Shape = "circle" | "rect" | "line";
+    type Shape = "circle" | "rect" | "line" | "image";
 
     interface CtxOptions{
         lineWidth:number;
@@ -10,7 +10,7 @@ export declare global{
     }
 
     interface Move{
-        shape:Shape
+        base64:string
         radius:number
         width:number
         height:number
