@@ -26,7 +26,7 @@ const [isOpen, setIsOpen] = useState(false);
                 <IoColorPalette className="text-xl" />
             </button>
             {isOpen && (
-                <div >
+                <div  className="absolute w-50 0  bottom-1 left-15 bg-white border border-gray-300 rounded ">
                     <Sketch
                         color={lineColor}
                         onChange={(color) => setLineColor(color.hex)}

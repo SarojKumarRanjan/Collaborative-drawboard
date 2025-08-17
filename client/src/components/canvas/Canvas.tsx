@@ -4,17 +4,23 @@ import { motion } from "motion/react";
 import { useRef, useState, useEffect, useCallback } from "react";
 import Minimap from "./MiniMap";
 import { useBoardPosition } from "@/store/BoardPosition";
-import { socket } from "@/lib/Socket";
 import { drawAllMoves } from "@/hooks/DrawFromSocket";
 import { useDraw } from "@/hooks/useDraw.hook";
 import { useSocketDraw } from "@/hooks/useSocketDraw";
 import roomStore from "@/store/room.store";
 import Background from "../toolbar/Background";
+import { useParams } from "react-router-dom";
+import { socket } from "@/lib/Socket";
+import { optionStore } from "@/store/Options.store";
 
-const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }) => {
+const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> | null }) => {
   const usersMoves = roomStore((state) => state.usersMoves);
   const myMoves = roomStore((state) => state.myMoves);
   const movesWithoutUser = roomStore((state) => state.movesWithoutUser);
+  const lineColor = optionStore((state) => state.lineColor);
+  const lineWidth = optionStore((state) => state.lineWidth);
+  const erase = optionStore((state) => state.erase);
+  const shape = optionStore((state) => state.shape);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const smallCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -23,6 +29,8 @@ const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }
   const [dragging, setDragging] = useState(false);
   const [, setMovedminimap] = useState(false);
   const { height, width } = useViewportSize();
+
+  const { roomid } = useParams<{ roomid?: string }>();
 
   const { handleDraw, handleEndDrawing, handleStartDrawing, handleUndo, drawing } = useDraw(
     dragging,
@@ -88,29 +96,34 @@ const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }
 
   
   useEffect(() => {
-    const undoBtn = undoRef.current;
+    if(undoRef){
+        const undoBtn = undoRef.current;
     if (undoBtn) {
       undoBtn.addEventListener("click", handleUndo);
       return () => {
         undoBtn.removeEventListener("click", handleUndo);
       };
     }
+    }
+    
   }, [undoRef, handleUndo]);
 
  
-  useEffect(() => {
-    if (ctx) {
-      socket.emit("joined_room");
-    }
-  }, [ctx]);
+
 
   
   useEffect(() => {
     if (ctx) {
-      drawAllMoves(ctx, { usersMoves, movesWithoutUser, myMoves });
+      drawAllMoves(ctx, { usersMoves, movesWithoutUser, myMoves },{lineColor,lineWidth,erase,shape});
       copyCanvasToSmall();
     }
-  }, [ctx, usersMoves, movesWithoutUser, myMoves, copyCanvasToSmall]);
+  }, [ctx, usersMoves, movesWithoutUser, myMoves, copyCanvasToSmall, lineColor, lineWidth, erase, shape]);
+
+  useEffect(()=>{
+    if (ctx && roomid) {
+      socket.emit("joined_room");
+    }
+  }, [ctx, roomid]);
 
   useSocketDraw(ctx, drawing);
 
@@ -140,7 +153,7 @@ const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }
         onMouseUp={handleEndDrawing}
         onMouseMove={(e) => {
           if (!dragging) {
-            handleDraw(e.clientX, e.clientY);
+            handleDraw(e.clientX, e.clientY,e.shiftKey);
           }
         }}
         onTouchStart={(e) => {

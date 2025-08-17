@@ -24,21 +24,21 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
     
     useEffect(() => {
       if (!isDraggingMinimap) {
-        miniX.set(-x.get() / 7);
-        miniY.set(-y.get() / 7);
+        miniX.set(-x.get() / 10);
+        miniY.set(-y.get() / 10);
       }
     }, [ isDraggingMinimap, miniX, miniY,x,y]);
 
     useEffect(() => {
       const unsubscribeX = miniX.onChange((newX) => {
         if (!dragging && isDraggingMinimap) {
-          x.set(-newX * 7);
+          x.set(-newX * 10);
         }
       });
 
       const unsubscribeY = miniY.onChange((newY) => {
         if (!dragging && isDraggingMinimap) {
-          y.set(-newY * 7);
+          y.set(-newY * 10);
         }
       });
 
@@ -50,11 +50,11 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
 
     return (
       <div
-        className="absolute top-5 right-5 z-30  rounded-xl bg-zinc-100 shadow-md"
+        className="absolute top-5 right-5 z-30 border border-zinc-500/80  rounded-xl bg-zinc-100 shadow-md"
         ref={containerRef}
         style={{
-          width: CANVAS_SIZE.width / 7,
-          height: CANVAS_SIZE.height / 7,
+          width: CANVAS_SIZE.width / 10,
+          height: CANVAS_SIZE.height / 10,
         }}
       >
         <canvas
@@ -76,8 +76,8 @@ const Minimap = forwardRef<HTMLCanvasElement, MiniMapProps>(
           }}
           className="absolute top-0 left-0 cursor-grab border-2 rounded-xl border-blue-600 box active:cursor-grabbing"
           style={{
-            width: width / 7,
-            height: height / 7,
+            width: width / 10,
+            height: height / 10,
             x: miniX,
             y: miniY,
           }}
