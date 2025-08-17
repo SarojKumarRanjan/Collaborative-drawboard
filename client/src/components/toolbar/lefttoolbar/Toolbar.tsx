@@ -1,6 +1,6 @@
 import ColorPicker from "./ColorPicker";
 import LineWidthPicker from "./LineWidthPicker";
-import UserList from "./UserList";
+import UserList from "../UserList";
 import Eraser from "./Eraser";
 import { FaUndo } from "react-icons/fa";
 import Collaborate from "@/components/room/Collaborate";

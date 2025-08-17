@@ -11,11 +11,16 @@ import roomStore from "@/store/room.store";
 import Background from "../toolbar/Background";
 import { useParams } from "react-router-dom";
 import { socket } from "@/lib/Socket";
+import { optionStore } from "@/store/Options.store";
 
-const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }) => {
+const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> | null }) => {
   const usersMoves = roomStore((state) => state.usersMoves);
   const myMoves = roomStore((state) => state.myMoves);
   const movesWithoutUser = roomStore((state) => state.movesWithoutUser);
+  const lineColor = optionStore((state) => state.lineColor);
+  const lineWidth = optionStore((state) => state.lineWidth);
+  const erase = optionStore((state) => state.erase);
+  const shape = optionStore((state) => state.shape);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const smallCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -91,13 +96,16 @@ const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }
 
   
   useEffect(() => {
-    const undoBtn = undoRef.current;
+    if(undoRef){
+        const undoBtn = undoRef.current;
     if (undoBtn) {
       undoBtn.addEventListener("click", handleUndo);
       return () => {
         undoBtn.removeEventListener("click", handleUndo);
       };
     }
+    }
+    
   }, [undoRef, handleUndo]);
 
  
@@ -106,10 +114,10 @@ const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }
   
   useEffect(() => {
     if (ctx) {
-      drawAllMoves(ctx, { usersMoves, movesWithoutUser, myMoves });
+      drawAllMoves(ctx, { usersMoves, movesWithoutUser, myMoves },{lineColor,lineWidth,erase,shape});
       copyCanvasToSmall();
     }
-  }, [ctx, usersMoves, movesWithoutUser, myMoves, copyCanvasToSmall]);
+  }, [ctx, usersMoves, movesWithoutUser, myMoves, copyCanvasToSmall, lineColor, lineWidth, erase, shape]);
 
   useEffect(()=>{
     if (ctx && roomid) {
@@ -145,7 +153,7 @@ const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> }
         onMouseUp={handleEndDrawing}
         onMouseMove={(e) => {
           if (!dragging) {
-            handleDraw(e.clientX, e.clientY);
+            handleDraw(e.clientX, e.clientY,e.shiftKey);
           }
         }}
         onTouchStart={(e) => {

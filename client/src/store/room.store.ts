@@ -77,7 +77,7 @@ const roomStore = create<RoomStore>((set) => {
     handleMyMoves: (moves: Move) =>
       set((state) => {
         const myMoves = state.myMoves ? [...state.myMoves, moves] : [moves];
-         //console.log("My moves", myMoves);
+         //console.log("My moves", moves);
         return { myMoves };
       }),
 

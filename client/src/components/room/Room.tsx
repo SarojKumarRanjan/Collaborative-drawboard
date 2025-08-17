@@ -4,9 +4,10 @@ import MouseRenderer from "../MouseRenderer"
 
 import NotFound from "../notFound"
 import { useModalStore } from '@/store/Modal.store';
-import Toolbar from "../toolbar/Toolbar";
+import Toolbar from "@/components/toolbar/lefttoolbar/Toolbar";
 import { useRef } from "react"
 import Chat from "../chat/Chat"
+import TopToolBar from "@/components/toolbar/toptoolbar/Toptoolbar";
 
 const Room = () => {
 
@@ -19,10 +20,10 @@ const Room = () => {
 
     return (
         <div className="h-svh w-svw  overflow-hidden">
-           
-            
-                
-             <Toolbar undoRef={undoRef} /> 
+
+            <TopToolBar />
+
+            <Toolbar undoRef={undoRef} />
             <CanvasPage undoRef={undoRef} />
             
             
