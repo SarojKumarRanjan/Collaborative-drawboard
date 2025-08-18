@@ -178,7 +178,7 @@ io.on("connection", (socket) => {
 
     const timestamp = Date.now();
     addMove(roomId, socket.id, {...move, timestamp});
-    console.log(move, timestamp);
+    //console.log(move, timestamp);
     
     io.to(socket.id).emit("your_moves", { ...move, timestamp });
     socket.broadcast.to(roomId).emit("user_draw",{... move,timestamp}, socket.id);
@@ -229,6 +229,10 @@ app.get("/", (req, res) => {
 
 app.get("/api", (req, res) => {
   res.send("Hello API!");
+});
+
+app.get("/awake", (req, res) => {
+  res.send("Server is awake!");
 });
 
 // Debug endpoint to check room status
