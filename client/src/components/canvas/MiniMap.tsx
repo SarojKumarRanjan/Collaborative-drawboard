@@ -4,6 +4,7 @@ import { MotionValue, useMotionValue , motion} from "motion/react";
 import { useViewportSize } from "@/hooks/Viewport";
 import { CANVAS_SIZE } from "@/constant";
 import useRefStore from "@/store/Refs.store";
+import type{ Dispatch, SetStateAction } from "react";
 
 type MiniMapProps = {
   x: MotionValue<number>;
