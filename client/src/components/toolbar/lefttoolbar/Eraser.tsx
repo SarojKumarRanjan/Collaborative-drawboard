@@ -6,9 +6,9 @@ const Eraser = () => {
 const erase = optionStore((state) => state.erase);
 const setErase = optionStore((state) => state.setErase);
   return (
-    <div className=" bg-gray-400 rounded hover:bg-gray-300">
+    <div className=" ">
     <button
-      className={` p-2 text-xl ${erase ? 'active' : ''} `}
+      className={` text-xl ${erase ? 'active' : ''} `}
       onClick={() => setErase(!erase)}
       title="Eraser"
     >

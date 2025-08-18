@@ -1,16 +1,16 @@
 import { useBoardPosition } from "@/store/BoardPosition";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { motion } from "motion/react";
 import { CANVAS_SIZE } from "@/constant";
 
-const Background = () => {
+const Background = ({ bgRef }: { bgRef: React.RefObject<HTMLCanvasElement | null>  }) => {
   const { x, y } = useBoardPosition();
 
-  const ref = useRef<HTMLCanvasElement>(null);
+  
 
   useEffect(() => {
-    if (ref.current) {
-      const ctx = ref.current.getContext("2d");
+    if (bgRef.current) {
+      const ctx = bgRef.current.getContext("2d");
       if (ctx) {
         ctx.fillStyle = "#f0f0f0";
         ctx.fillRect(0, 0, CANVAS_SIZE.width, CANVAS_SIZE.height);
@@ -34,11 +34,11 @@ const Background = () => {
         }
       }
     }
-  },[]);
+  },[bgRef]);
 
   return (
     <motion.canvas
-      ref={ref}
+      ref={bgRef}
       className="absolute z-0 inset-0"
       width={CANVAS_SIZE.width}
       height={CANVAS_SIZE.height}

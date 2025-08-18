@@ -16,10 +16,10 @@ const LineWidthPicker = () => {
   return (
     <div ref={ref} className="relative">
       <button
-        className="p-2 bg-gray-400 rounded hover:bg-gray-300 "
+        className="text-xl"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <MdOutlineMenu className="text-xl" />
+        <MdOutlineMenu  />
         
       </button>
       {isOpen && (

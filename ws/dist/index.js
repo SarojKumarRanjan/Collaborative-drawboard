@@ -132,6 +132,7 @@ io.on("connection", (socket) => {
         const roomId = getRoomId();
         const timestamp = Date.now();
         addMove(roomId, socket.id, Object.assign(Object.assign({}, move), { timestamp }));
+        console.log(move, timestamp);
         io.to(socket.id).emit("your_moves", Object.assign(Object.assign({}, move), { timestamp }));
         socket.broadcast.to(roomId).emit("user_draw", Object.assign(Object.assign({}, move), { timestamp }), socket.id);
     });

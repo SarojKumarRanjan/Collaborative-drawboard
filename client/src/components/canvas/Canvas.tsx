@@ -1,29 +1,21 @@
 import { CANVAS_SIZE } from "@/constant";
 import { useViewportSize } from "@/hooks/Viewport";
 import { motion } from "motion/react";
-import { useRef, useState, useEffect, useCallback } from "react";
+import {  useState, useEffect } from "react";
 import Minimap from "./MiniMap";
 import { useBoardPosition } from "@/store/BoardPosition";
-import { drawAllMoves } from "@/hooks/DrawFromSocket";
 import { useDraw } from "@/hooks/useDraw.hook";
 import { useSocketDraw } from "@/hooks/useSocketDraw";
-import roomStore from "@/store/room.store";
 import Background from "../toolbar/Background";
 import { useParams } from "react-router-dom";
 import { socket } from "@/lib/Socket";
-import { optionStore } from "@/store/Options.store";
+import refStore from "@/store/Refs.store";
+import useMovesHandlers from "@/hooks/useMovesHandlers";
 
-const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> | null }) => {
-  const usersMoves = roomStore((state) => state.usersMoves);
-  const myMoves = roomStore((state) => state.myMoves);
-  const movesWithoutUser = roomStore((state) => state.movesWithoutUser);
-  const lineColor = optionStore((state) => state.lineColor);
-  const lineWidth = optionStore((state) => state.lineWidth);
-  const erase = optionStore((state) => state.erase);
-  const shape = optionStore((state) => state.shape);
-
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const smallCanvasRef = useRef<HTMLCanvasElement>(null);
+const CanvasPage = () => {
+  const canvasRef = refStore((state) => state.canvasRef);
+  const undoRef = refStore((state) => state.undoRef);
+  const bgRef = refStore((state) => state.bgRef);
 
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
   const [dragging, setDragging] = useState(false);
@@ -32,42 +24,24 @@ const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> |
 
   const { roomid } = useParams<{ roomid?: string }>();
 
-  const { handleDraw, handleEndDrawing, handleStartDrawing, handleUndo, drawing } = useDraw(
+  const { drawAllMoves, handleUndo } = useMovesHandlers();
+
+  const { handleDraw, handleEndDrawing, handleStartDrawing, drawing } = useDraw(
     dragging,
-    ctx
+    drawAllMoves
   );
 
   const { x, y } = useBoardPosition();
 
-  
-  const copyCanvasToSmall = useCallback(() => {
-    if (canvasRef.current && smallCanvasRef.current) {
-      const smallCtx = smallCanvasRef.current.getContext("2d");
-      if (smallCtx) {
-        smallCtx.clearRect(0, 0, CANVAS_SIZE.width, CANVAS_SIZE.height);
-        smallCtx.drawImage(
-          canvasRef.current,
-          0,
-          0,
-          CANVAS_SIZE.width,
-          CANVAS_SIZE.height
-        );
-      }
-    }
-  }, []);
-
- 
   useEffect(() => {
     if (canvasRef.current) {
       const newCtx = canvasRef.current.getContext("2d");
       if (newCtx) {
-       
         setCtx(newCtx);
       }
     }
-  }, []);
+  }, [canvasRef]);
 
-  
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && !dragging) {
@@ -81,45 +55,28 @@ const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> |
       }
     };
 
-
-
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
-    
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
-     
     };
   }, [dragging, handleUndo]);
 
-  
   useEffect(() => {
-    if(undoRef){
-        const undoBtn = undoRef.current;
-    if (undoBtn) {
-      undoBtn.addEventListener("click", handleUndo);
-      return () => {
-        undoBtn.removeEventListener("click", handleUndo);
-      };
+    if (undoRef) {
+      const undoBtn = undoRef.current;
+      if (undoBtn) {
+        undoBtn.addEventListener("click", handleUndo);
+        return () => {
+          undoBtn.removeEventListener("click", handleUndo);
+        };
+      }
     }
-    }
-    
   }, [undoRef, handleUndo]);
 
- 
-
-
-  
   useEffect(() => {
-    if (ctx) {
-      drawAllMoves(ctx, { usersMoves, movesWithoutUser, myMoves },{lineColor,lineWidth,erase,shape});
-      copyCanvasToSmall();
-    }
-  }, [ctx, usersMoves, movesWithoutUser, myMoves, copyCanvasToSmall, lineColor, lineWidth, erase, shape]);
-
-  useEffect(()=>{
     if (ctx && roomid) {
       socket.emit("joined_room");
     }
@@ -129,12 +86,14 @@ const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> |
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      <Background />
+      <Background bgRef={bgRef} />
       <motion.canvas
         ref={canvasRef}
         width={CANVAS_SIZE.width}
         height={CANVAS_SIZE.height}
-        className={`absolute z-10 ${dragging ? 'cursor-move' : 'cursor-crosshair'}`}
+        className={`absolute z-10 ${
+          dragging ? "cursor-move" : "cursor-crosshair"
+        }`}
         style={{ x, y }}
         drag={dragging}
         dragConstraints={{
@@ -153,24 +112,29 @@ const CanvasPage = ({ undoRef }: { undoRef: React.RefObject<HTMLButtonElement> |
         onMouseUp={handleEndDrawing}
         onMouseMove={(e) => {
           if (!dragging) {
-            handleDraw(e.clientX, e.clientY,e.shiftKey);
+            handleDraw(e.clientX, e.clientY, e.shiftKey);
           }
         }}
         onTouchStart={(e) => {
           if (!dragging) {
-            handleStartDrawing(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+            handleStartDrawing(
+              e.changedTouches[0].clientX,
+              e.changedTouches[0].clientY
+            );
           }
         }}
         onTouchEnd={handleEndDrawing}
         onTouchMove={(e) => {
           if (!dragging) {
-            handleDraw(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+            handleDraw(
+              e.changedTouches[0].clientX,
+              e.changedTouches[0].clientY
+            );
           }
         }}
       />
 
       <Minimap
-        ref={smallCanvasRef}
         x={x}
         y={y}
         dragging={dragging}

@@ -178,6 +178,8 @@ io.on("connection", (socket) => {
 
     const timestamp = Date.now();
     addMove(roomId, socket.id, {...move, timestamp});
+    console.log(move, timestamp);
+    
     io.to(socket.id).emit("your_moves", { ...move, timestamp });
     socket.broadcast.to(roomId).emit("user_draw",{... move,timestamp}, socket.id);
   });

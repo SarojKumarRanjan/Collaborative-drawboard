@@ -8,7 +8,7 @@ const Collaborate = () => {
 
     return (
 
-       <div className="flex items-center  justify-center bg-gray-400 rounded hover:bg-gray-300">
+       <div className="flex items-center  justify-center ">
        <button className="p-2" onClick={() => setShowModal(true)}>
         <HiUserGroup />
        </button>
