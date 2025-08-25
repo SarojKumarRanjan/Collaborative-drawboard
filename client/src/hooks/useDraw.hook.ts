@@ -12,8 +12,9 @@ let tempReact = {
   width: 0,
   height: 0,
 };
+let tempImageData: ImageData | undefined;
 
-export const useDraw = (blocked: boolean, drawAllMoves: () => void) => {
+export const useDraw = (blocked: boolean) => {
   const canvasRef = useRefStore((state) => state.canvasRef);
   const lineColor = optionStore((state) => state.lineColor);
   const lineWidth = optionStore((state) => state.lineWidth);
@@ -48,8 +49,13 @@ export const useDraw = (blocked: boolean, drawAllMoves: () => void) => {
   };
 
   const drawAndSet = () => {
-    drawAllMoves()
-    setCtxOptions()
+    if(!tempImageData && ctx){
+      tempImageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
+
+    if(tempImageData && ctx){
+      ctx.putImageData(tempImageData, 0, 0);
+    }
   }
 
   const handleStartDrawing = (x: number, y: number) => {
@@ -90,9 +96,13 @@ export const useDraw = (blocked: boolean, drawAllMoves: () => void) => {
       timestamp: 0,
       eraser: erase,
       base64: "",
+      id:""
     };
 
     tempMoves = [];
+    tempRadius = 0;
+    tempReact = { width: 0, height: 0 };
+    tempImageData = undefined;
     socket.emit("draw", move);
   };
 

@@ -18,6 +18,7 @@ export declare global{
         options:CtxOptions
         timestamp: number;
         eraser:boolean
+        id:string
     }
 
     interface Message {

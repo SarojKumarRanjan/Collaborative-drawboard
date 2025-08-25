@@ -47,26 +47,19 @@ const useMovesHandlers = () => {
     }
   };
 
-  const drawMove = (move: Move) =>
-    new Promise((resolve) => {
+  const drawMove = (move: Move,image?:HTMLImageElement) => {
       const { path } = move;
 
       if (!ctx || !path.length) {
-        resolve("bye");
+        
         return;
       }
 
       const moveOptions = move.options;
 
-      if (moveOptions.shape === "image") {
-        const img = new Image();
-        img.src = move.base64;
-        img.addEventListener("load", () => {
-          ctx?.drawImage(img, path[0][0], path[0][1]);
-          copyCanvasToSmall();
-          resolve("bye");
-        });
-        return;
+      if (moveOptions.shape === "image" && image) {
+        ctx.drawImage(image, path[0][0], path[0][1]);
+        
       }
 
       ctx.lineWidth = moveOptions.lineWidth;
@@ -101,8 +94,8 @@ const useMovesHandlers = () => {
       }
 
       copyCanvasToSmall();
-      resolve("bye");
-    });
+      
+    }
 
 
     const drawAllMoves = async( ) => {
@@ -111,9 +104,28 @@ const useMovesHandlers = () => {
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-        for(const move of sortedMoves) {
-          await drawMove(move);
-        }
+        const images = await Promise.all(
+          sortedMoves.filter(move => move.options.shape === "image").map(async (move) => {
+            const img = new Image();
+            img.id = move.id as string;
+            img.src = move.base64;
+            await new Promise((resolve) => {
+              img.addEventListener("load", resolve);
+            });
+            return img;
+          })
+        );
+
+        sortedMoves.forEach((move) => {
+          const image = images.find((img) => img.id === move.id);
+          if(image){
+            drawMove(move, image);
+          }else{
+            drawMove(move);
+          }
+        });
+
+       copyCanvasToSmall();
 
 
     }
@@ -135,7 +147,16 @@ const useMovesHandlers = () => {
         if(prevMovesLength>0 && sortedMoves.length || !prevMovesLength){
             drawAllMoves();
         }else{
-            drawMove(sortedMoves[sortedMoves.length - 1])
+          const lastMove = sortedMoves[sortedMoves.length - 1];
+           if(lastMove.options.shape === "image"){
+            const img = new Image();
+            img.src = lastMove.base64;
+            img.addEventListener("load", () => {
+              drawMove(lastMove, img);
+            });
+           }else{
+            drawMove(lastMove);
+           }
         }
 
         return () => {
@@ -170,7 +191,7 @@ const useMovesHandlers = () => {
          drawMove,
       }
 
- 
+    
 
 };
 

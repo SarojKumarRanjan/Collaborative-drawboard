@@ -24,11 +24,11 @@ const CanvasPage = () => {
 
   const { roomid } = useParams<{ roomid?: string }>();
 
-  const { drawAllMoves, handleUndo } = useMovesHandlers();
+  const {  handleUndo } = useMovesHandlers();
 
   const { handleDraw, handleEndDrawing, handleStartDrawing, drawing } = useDraw(
     dragging,
-    drawAllMoves
+    
   );
 
   const { x, y } = useBoardPosition();

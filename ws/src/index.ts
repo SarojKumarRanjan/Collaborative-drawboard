@@ -1,6 +1,7 @@
 import { createServer } from "http";
 import express from "express";
 import { Server } from "socket.io";
+import { uuid } from "uuidv4";
 
 
 const app = express();
@@ -172,11 +173,14 @@ io.on("connection", (socket) => {
   });
 
   socket.on("draw", (move: Move) => {
-    console.log("draw");
+    
     
     const roomId = getRoomId();
+      
 
     const timestamp = Date.now();
+
+    move.id = uuid()
     addMove(roomId, socket.id, {...move, timestamp});
     //console.log(move, timestamp);
     
