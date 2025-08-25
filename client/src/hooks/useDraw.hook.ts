@@ -5,6 +5,7 @@ import { getPosition } from "@/lib/GetPosition";
 import { optionStore } from "@/store/Options.store";
 import { drawLine, drawCircle, drawRect } from "./DrawFromSocket";
 import useRefStore from "@/store/Refs.store";
+import useSavedMovesStore from "@/store/SavedMoves.store";
 
 let tempMoves: [number, number][] = [];
 let tempCircle = {
@@ -25,6 +26,7 @@ export const useDraw = (blocked: boolean) => {
   const lineWidth = optionStore((state) => state.lineWidth);
   const erase = optionStore((state) => state.erase);
   const shape = optionStore((state) => state.shape);
+  const clearSavedMoves = useSavedMovesStore((state) => state.clearSavedMoves);
 
   const position = useBoardPosition();
   const movedX = position.x;
@@ -117,6 +119,7 @@ export const useDraw = (blocked: boolean) => {
     tempReact = { width: 0, height: 0 };
     tempImageData = undefined;
     socket.emit("draw", move);
+    clearSavedMoves();
   };
 
   const handleDraw = (x: number, y: number, shiftKey?: boolean) => {

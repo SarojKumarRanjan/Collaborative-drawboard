@@ -2,6 +2,7 @@ import { socket } from "@/lib/Socket";
 import useRefStore from "@/store/Refs.store";
 import roomStore from "@/store/room.store";
 import { useEffect, useMemo, useState } from "react";
+import useSavedMovesStore from "@/store/SavedMoves.store";
 
 let prevMovesLength = 0;
 
@@ -12,6 +13,8 @@ const useMovesHandlers = () => {
   const handleMyMoves = roomStore((state) => state.handleMyMoves);
   const handleRemoveMyMove = roomStore((state) => state.handleRemoveMyMove);
   const { usersMoves, movesWithoutUser, myMoves } = roomStore((state) => state);
+  const removeSavedMoves = useSavedMovesStore((state) => state.removeSavedMoves);
+  const addSavedMove = useSavedMovesStore((state) => state.addSavedMove);
 
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
 
@@ -110,7 +113,7 @@ const useMovesHandlers = () => {
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-        console.log("Drawing all moves", sortedMoves);
+        
         const images = await Promise.all(
           sortedMoves.filter(move => move.options.shape === "image").map(async (move) => {
             const img = new Image();
@@ -173,29 +176,56 @@ const useMovesHandlers = () => {
   };
 }, [sortedMoves]);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const handleUndo = () => {
         if(ctx){
-            handleRemoveMyMove();
-            socket.emit("undo")
+          const move =   handleRemoveMyMove();
+
+          if(move){
+
+            addSavedMove(move);
+             socket.emit("undo")
+          }
+           
+           
         }
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const handleRedo = () => {
+        if(ctx){
+          const move =  removeSavedMoves();
+         
+
+          if(move){
+
+            socket.emit("draw", move)
+          }
+        }
+      }
+
       useEffect(() => {
-        const handleUndoKeyboard = (e: KeyboardEvent) => {
+        const handleUndoRedoKeyboard = (e: KeyboardEvent) => {
+          
+          
           if (e.key === "z" && e.ctrlKey) {
             handleUndo();
+          }else if(e.key === "x" && e.ctrlKey ){
+            
+            handleRedo();
           }
         };
     
-        document.addEventListener("keydown", handleUndoKeyboard);
+        document.addEventListener("keydown", handleUndoRedoKeyboard);
     
         return () => {
-          document.removeEventListener("keydown", handleUndoKeyboard);
+          document.removeEventListener("keydown", handleUndoRedoKeyboard);
         };
-      }, [handleUndo]);
+      }, [handleUndo,handleRedo]);
 
       return {
          handleUndo,
+          handleRedo,
          drawAllMoves,
          drawMove,
       }

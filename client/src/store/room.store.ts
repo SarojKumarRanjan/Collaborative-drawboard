@@ -13,7 +13,7 @@ export interface RoomStore {
   handleAddMoveToUser: (userId: string, move: Move) => void;
   handleRemoveMoveFromUser: (userId: string) => void;
   handleMyMoves: (moves: Move) => void;
-  handleRemoveMyMove: () => void;
+  handleRemoveMyMove: () => Move | undefined;
   handleSetMovesWithoutUser: (moves: Move[]) => void;
 }
 
@@ -81,16 +81,20 @@ const roomStore = create<RoomStore>((set) => {
         return { myMoves };
       }),
 
-    handleRemoveMyMove: () =>
+    handleRemoveMyMove: () =>{
+      let move: Move | undefined;
       set((state) => {
         const myMoves = state.myMoves ? [...state.myMoves] : [];
         //console.log(myMoves);
         
         if (myMoves.length > 0) {
-          myMoves.pop();
+          move = myMoves.pop();
         }
         return { myMoves };
-      }),
+      }
+    )
+  return move
+  },
 
     handleSetMovesWithoutUser: (moves: Move[]) =>
       set({ movesWithoutUser: moves }),

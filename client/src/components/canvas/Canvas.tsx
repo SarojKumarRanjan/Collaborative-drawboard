@@ -16,6 +16,7 @@ const CanvasPage = () => {
   const canvasRef = refStore((state) => state.canvasRef);
   const undoRef = refStore((state) => state.undoRef);
   const bgRef = refStore((state) => state.bgRef);
+  const redoRef = refStore((state) => state.redoRef);
 
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
   const [dragging, setDragging] = useState(false);
@@ -24,7 +25,7 @@ const CanvasPage = () => {
 
   const { roomid } = useParams<{ roomid?: string }>();
 
-  const {  handleUndo } = useMovesHandlers();
+  const {  handleUndo,handleRedo } = useMovesHandlers();
 
   const { handleDraw, handleEndDrawing, handleStartDrawing, drawing } = useDraw(
     dragging,
@@ -67,14 +68,31 @@ const CanvasPage = () => {
   useEffect(() => {
     if (undoRef) {
       const undoBtn = undoRef.current;
+      
       if (undoBtn) {
         undoBtn.addEventListener("click", handleUndo);
+        
         return () => {
           undoBtn.removeEventListener("click", handleUndo);
+          
         };
       }
     }
   }, [undoRef, handleUndo]);
+
+  useEffect(() => {
+    if (redoRef) {
+      const redoBtn = redoRef.current;
+
+      if (redoBtn) {
+        redoBtn.addEventListener("click", handleRedo);
+
+        return () => {
+          redoBtn.removeEventListener("click", handleRedo);
+        };
+      }
+    }
+  }, [redoRef, handleRedo]);
 
   useEffect(() => {
     if (ctx && roomid) {

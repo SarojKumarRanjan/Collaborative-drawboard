@@ -2,18 +2,24 @@ import ColorPicker from "./ColorPicker";
 import LineWidthPicker from "./LineWidthPicker";
 import UserList from "../UserList";
 import Eraser from "./Eraser";
-import { FaUndo } from "react-icons/fa";
+import { FaRedo, FaUndo } from "react-icons/fa";
 import Collaborate from "@/components/room/Collaborate";
 import refStore from "@/store/Refs.store";
 import { CANVAS_SIZE } from "@/constant";
 import { HiOutlineDownload } from "react-icons/hi";
 import ImageInput from "./ImageInput";
+import useSavedMovesStore from "@/store/SavedMoves.store";
+import roomStore from "@/store/room.store";
 
 const Toolbar = () => {
 
   const undoRef = refStore((state) => state.undoRef);
   const canvasRef = refStore((state) => state.canvasRef);
   const bgRef = refStore((state) => state.bgRef);
+  const redoRef = refStore((state) => state.redoRef);
+
+  const myMoves = roomStore((state) => state.myMoves);
+  const savedMoves = useSavedMovesStore((state) => state.savedMoves);
 
   const handleDownload = () => {
     const canvas = document.createElement("canvas");
@@ -48,14 +54,25 @@ const Toolbar = () => {
           <Collaborate />
         </div>
 
-       
         <div className={baseBtn}> 
         <div className="flex items-center  justify-center">
           <button
             ref={undoRef}
             className="p-2"
+            disabled={myMoves.length === 0}
           >
             <FaUndo size={18} />
+          </button>
+        </div>
+        </div>
+        <div className={baseBtn}> 
+        <div className="flex items-center  justify-center">
+          <button
+            ref={redoRef}
+            className="p-2"
+            disabled={savedMoves.length === 0}
+          >
+            <FaRedo size={18} />
           </button>
         </div>
         </div>
