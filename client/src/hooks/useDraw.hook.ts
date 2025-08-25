@@ -7,7 +7,12 @@ import { drawLine, drawCircle, drawRect } from "./DrawFromSocket";
 import useRefStore from "@/store/Refs.store";
 
 let tempMoves: [number, number][] = [];
-let tempRadius = 0;
+let tempCircle = {
+  cX: 0,
+  cY: 0,
+  radiusX: 0,
+  radiusY: 0
+};
 let tempReact = {
   width: 0,
   height: 0,
@@ -78,15 +83,16 @@ export const useDraw = (blocked: boolean) => {
     setDrawing(false);
     ctx.closePath();
 
-    if (shape !== "circle") tempRadius = 0;
-    if (shape !== "rect") tempReact = { width: 0, height: 0 };
+ 
 
     const move: Move = {
       path: tempMoves,
-      radius: tempRadius,
-      width: tempReact.width,
-      height: tempReact.height,
-
+      rect:{
+        ...tempReact
+      },
+      circle: {
+        ...tempCircle
+      },
       options: {
         lineColor: lineColor,
         lineWidth: lineWidth,
@@ -95,12 +101,19 @@ export const useDraw = (blocked: boolean) => {
       },
       timestamp: 0,
       eraser: erase,
-      base64: "",
+      img:{
+        base64: "",
+      },
       id:""
     };
 
     tempMoves = [];
-    tempRadius = 0;
+    tempCircle = {
+      cX: 0,
+      cY: 0,
+      radiusX: 0,
+      radiusY: 0
+    };
     tempReact = { width: 0, height: 0 };
     tempImageData = undefined;
     socket.emit("draw", move);
@@ -131,7 +144,7 @@ export const useDraw = (blocked: boolean) => {
 
       case "circle":
         drawAndSet();
-        tempRadius = drawCircle(ctx, tempMoves[0], finalX, finalY);
+        tempCircle = drawCircle(ctx, tempMoves[0], finalX, finalY);
         break;
       default:
         break;

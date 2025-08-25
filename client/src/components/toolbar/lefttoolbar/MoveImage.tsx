@@ -22,9 +22,19 @@ const Moveimage = () => {
 
         
     const move:Move = {
-        width: 0,
-        height: 0,
-        radius:0,
+        rect:{
+            width: 0,
+            height: 0
+        },
+        circle:{
+            cX:0,
+            cY: 0,
+            radiusX: 0,
+            radiusY: 0
+        },
+        img:{
+            base64:MoveImage
+        },
         path:[[finalX, finalY]],
         options:{
             lineWidth: 1,
@@ -34,7 +44,6 @@ const Moveimage = () => {
         },
         timestamp: Date.now(),
         eraser: false,
-        base64: MoveImage,
     }
  
  

@@ -4,15 +4,30 @@ export const drawCircle = (
   ctx: CanvasRenderingContext2D,
   from: [number, number],
   x: number,
-  y: number
+  y: number,
+  shift?:boolean
 ) => {
   ctx.beginPath();
-  const radius = Math.sqrt((x - from[0]) ** 2 + (y - from[1]) ** 2);
-  ctx.arc(from[0], from[1], radius, 0, Math.PI * 2);
+
+  const cX = (x+from[0])/2;
+  const cY = (y+from[1])/2; 
+
+  let radiusX = 0
+  let radiusY = 0
+  if(shift){
+   const distance = Math.sqrt((x - from[0]) ** 2 + (y - from[1]) ** 2);
+   radiusX = distance /Math.SQRT2/2;
+   radiusY = distance /Math.SQRT2/2;
+  }else{
+    radiusX = Math.abs(x - from[0]) ;
+    radiusY = Math.abs(y - from[1]) ;
+  }
+
+  ctx.ellipse(cX, cY, radiusX, radiusY, 0, 0, 2 * Math.PI);
   ctx.stroke();
   ctx.closePath();
 
-  return radius;
+  return { cX, cY, radiusX, radiusY };
 };
 
 export const drawRect = (

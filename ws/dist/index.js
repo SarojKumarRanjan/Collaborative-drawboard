@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const http_1 = require("http");
 const express_1 = __importDefault(require("express"));
 const socket_io_1 = require("socket.io");
+const uuidv4_1 = require("uuidv4");
 const app = (0, express_1.default)();
 const server = (0, http_1.createServer)(app);
 const io = new socket_io_1.Server(server, {
@@ -128,9 +129,9 @@ io.on("connection", (socket) => {
         socket.broadcast.to(roomId).emit("mouse_moved", x, y, socket.id);
     });
     socket.on("draw", (move) => {
-        console.log("draw");
         const roomId = getRoomId();
         const timestamp = Date.now();
+        move.id = (0, uuidv4_1.uuid)();
         addMove(roomId, socket.id, Object.assign(Object.assign({}, move), { timestamp }));
         //console.log(move, timestamp);
         io.to(socket.id).emit("your_moves", Object.assign(Object.assign({}, move), { timestamp }));

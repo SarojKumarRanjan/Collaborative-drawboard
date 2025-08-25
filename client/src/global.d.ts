@@ -10,17 +10,24 @@ export declare global{
     }
 
     interface Move{
-       base64:string
-        radius:number
-        width:number
-        height:number
+        circle:{
+            cX:number,
+            cY:number,
+            radiusX:number,
+            radiusY:number
+        },
+        rect:{
+            width:number,
+            height:number
+        },
+        img:{
+            base64:string
+        },
         path:[number,number][]
         options:CtxOptions
         timestamp: number;
         eraser:boolean
-        id?:string
-
-        
+        id?:string    
     }
 
    interface Message {

@@ -66,6 +66,8 @@ const useMovesHandlers = () => {
       ctx.strokeStyle = moveOptions.lineColor;
       if (move.eraser) {
         ctx.globalCompositeOperation = "destination-out";
+      }else{
+        ctx.globalCompositeOperation = "source-over";
       }
       switch (moveOptions.shape) {
         case "line":
@@ -77,17 +79,21 @@ const useMovesHandlers = () => {
           ctx.stroke();
           ctx.closePath();
           break;
-        case "rect":
-          ctx.beginPath();
-          ctx.rect(path[0][0], path[0][1], move.width, move.height);
-          ctx.stroke();
-          ctx.closePath();
+          case "rect":{
+            const {width,height} = move.rect
+            ctx.beginPath();
+            ctx.rect(path[0][0], path[0][1], width, height);
+            ctx.stroke();
+            ctx.closePath();
+          }
           break;
-        case "circle":
+        case "circle":{
+          const {cX,cY,radiusX,radiusY} = move.circle
           ctx.beginPath();
-          ctx.arc(path[0][0], path[0][1], move.radius, 0, Math.PI * 2);
+          ctx.ellipse(cX, cY, radiusX, radiusY, 0, 0, 2 * Math.PI);
           ctx.stroke();
           ctx.closePath();
+        }
           break;
         default:
           break;
@@ -104,11 +110,12 @@ const useMovesHandlers = () => {
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
+        console.log("Drawing all moves", sortedMoves);
         const images = await Promise.all(
           sortedMoves.filter(move => move.options.shape === "image").map(async (move) => {
             const img = new Image();
             img.id = move.id as string;
-            img.src = move.base64;
+            img.src = move.img.base64;
             await new Promise((resolve) => {
               img.addEventListener("load", resolve);
             });
@@ -143,26 +150,28 @@ const useMovesHandlers = () => {
     }, [ handleMyMoves]);
 
 
-   useEffect(() => {
-        if(prevMovesLength>0 && sortedMoves.length || !prevMovesLength){
-            drawAllMoves();
-        }else{
-          const lastMove = sortedMoves[sortedMoves.length - 1];
-           if(lastMove.options.shape === "image"){
-            const img = new Image();
-            img.src = lastMove.base64;
-            img.addEventListener("load", () => {
-              drawMove(lastMove, img);
-            });
-           }else{
-            drawMove(lastMove);
-           }
-        }
+ useEffect(() => {
+  if ((prevMovesLength > 0 && sortedMoves.length) || !prevMovesLength) {
+    drawAllMoves();
+  } else {
+    if (sortedMoves.length > 0) {   
+      const lastMove = sortedMoves[sortedMoves.length - 1];
+      if (lastMove.options.shape === "image") {
+        const img = new Image();
+        img.src = lastMove.img.base64;
+        img.addEventListener("load", () => {
+          drawMove(lastMove, img);
+        });
+      } else {
+        drawMove(lastMove);
+      }
+    }
+  }
 
-        return () => {
-            prevMovesLength = sortedMoves.length;
-        };
-    },[sortedMoves])
+  return () => {
+    prevMovesLength = sortedMoves.length;
+  };
+}, [sortedMoves]);
 
     const handleUndo = () => {
         if(ctx){
