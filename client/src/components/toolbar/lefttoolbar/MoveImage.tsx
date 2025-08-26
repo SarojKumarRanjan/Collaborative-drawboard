@@ -5,12 +5,14 @@ import { useBoardPosition } from "@/store/BoardPosition";
 import { getPosition } from "@/lib/GetPosition";
 import { socket } from "@/lib/Socket";
 import {motion} from "motion/react";
+import { optionStore } from "@/store/Options.store";
 
 const Moveimage = () => {
 
     const canvasRef = useRefStore((state) => state.canvasRef);
     const MoveImage = useRefStore((state) => state.moveImage);
     const setMoveImage = useRefStore((state) => state.setMoveImage);
+    const selection = optionStore((state) => state.selection);
     const {x,y} = useBoardPosition();
     const imageX = useMotionValue(50)
     const imageY = useMotionValue(50)
@@ -41,6 +43,7 @@ const Moveimage = () => {
             lineColor:"#000",
             mode: "draw",
             shape: "image",
+            selection:selection
         },
         timestamp: Date.now(),
         eraser: false,

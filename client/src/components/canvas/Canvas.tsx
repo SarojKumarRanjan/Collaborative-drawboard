@@ -11,6 +11,7 @@ import { useParams } from "react-router-dom";
 import { socket } from "@/lib/Socket";
 import refStore from "@/store/Refs.store";
 import useMovesHandlers from "@/hooks/useMovesHandlers";
+import { useCtx } from "@/hooks/useCtx";
 
 const CanvasPage = () => {
   const canvasRef = refStore((state) => state.canvasRef);
@@ -18,7 +19,7 @@ const CanvasPage = () => {
   const bgRef = refStore((state) => state.bgRef);
   const redoRef = refStore((state) => state.redoRef);
 
-  const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
+  const ctx = useCtx();
   const [dragging, setDragging] = useState(false);
   const [, setMovedminimap] = useState(false);
   const { height, width } = useViewportSize();
@@ -34,14 +35,7 @@ const CanvasPage = () => {
 
   const { x, y } = useBoardPosition();
 
-  useEffect(() => {
-    if (canvasRef.current) {
-      const newCtx = canvasRef.current.getContext("2d");
-      if (newCtx) {
-        setCtx(newCtx);
-      }
-    }
-  }, [canvasRef]);
+
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -100,7 +94,7 @@ const CanvasPage = () => {
     }
   }, [ctx, roomid]);
 
-  useSocketDraw(ctx, drawing);
+  useSocketDraw( drawing);
 
   return (
     <div className="relative w-full h-full overflow-hidden">

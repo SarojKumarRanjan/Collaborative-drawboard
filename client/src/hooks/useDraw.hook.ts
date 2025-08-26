@@ -7,6 +7,7 @@ import { drawLine, drawCircle, drawRect } from "./DrawFromSocket";
 import useRefStore from "@/store/Refs.store";
 import useSavedMovesStore from "@/store/SavedMoves.store";
 
+
 let tempMoves: [number, number][] = [];
 let tempCircle = {
   cX: 0,
@@ -27,6 +28,8 @@ export const useDraw = (blocked: boolean) => {
   const mode = optionStore((state) => state.mode);
   const shape = optionStore((state) => state.shape);
   const clearSavedMoves = useSavedMovesStore((state) => state.clearSavedMoves);
+  const setSelection = optionStore((state) => state.setSelection);
+  const selection = optionStore((state) => state.selection);
 
   const position = useBoardPosition();
   const movedX = position.x;
@@ -89,8 +92,23 @@ export const useDraw = (blocked: boolean) => {
   const handleEndDrawing = () => {
     if (!ctx) return;
 
+
+
     setDrawing(false);
     ctx.closePath();
+
+    if(mode==="select"){
+      drawAndSet()
+      const x = tempMoves[0][0];
+      const y = tempMoves[0][1];
+      const width = tempMoves[tempMoves.length - 1][0] - x;
+      const height = tempMoves[tempMoves.length - 1][1] - y;
+      setSelection({ x, y, width, height });
+
+      if(width !== 0 && height !== 0){
+        setSelection({ x, y, width, height });
+      }
+    }
 
     const move: Move = {
       path: tempMoves,
@@ -105,6 +123,7 @@ export const useDraw = (blocked: boolean) => {
         lineWidth: lineWidth,
         mode: mode,
         shape: shape,
+        selection: selection
       },
       timestamp: 0,
       eraser: mode === "eraser",
@@ -123,15 +142,15 @@ export const useDraw = (blocked: boolean) => {
     };
     tempReact = { width: 0, height: 0 };
 
-    if (mode === "select") {
-      drawAndSet();
-      tempImageData = undefined;
-      return;
-    }
+
 
     tempImageData = undefined;
-    socket.emit("draw", move);
-    clearSavedMoves();
+
+    if(mode !== "select"){
+         socket.emit("draw", move);
+         clearSavedMoves();
+    }
+   
   };
 
   const handleDraw = (x: number, y: number, shiftKey?: boolean) => {
@@ -146,7 +165,8 @@ export const useDraw = (blocked: boolean) => {
     if (mode === "select") {
       ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
 
-      drawRect(ctx, tempMoves[0], finalX, finalY, shiftKey, true);
+      drawRect(ctx, tempMoves[0], finalX, finalY, false, true);
+       tempMoves.push([finalX, finalY]);
       return;
     }
 

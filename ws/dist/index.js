@@ -68,7 +68,11 @@ io.on("connection", (socket) => {
             roomId = Math.random().toString(36).substring(2, 6);
         } while (rooms.has(roomId));
         socket.join(roomId);
-        rooms.set(roomId, { usersMoves: new Map([[socket.id, []]]), drawed: [], users: new Map([[socket.id, username]]) });
+        rooms.set(roomId, {
+            usersMoves: new Map([[socket.id, []]]),
+            drawed: [],
+            users: new Map([[socket.id, username]]),
+        });
         console.log(`Room ${roomId} created with user ${socket.id}`);
         io.to(socket.id).emit("created", roomId);
     });
@@ -81,7 +85,9 @@ io.on("connection", (socket) => {
         if (rooms.has(roomId)) {
             socket.join(roomId);
             const room = rooms.get(roomId);
-            if (room && !room.usersMoves.has(socket.id) && !room.users.has(socket.id)) {
+            if (room &&
+                !room.usersMoves.has(socket.id) &&
+                !room.users.has(socket.id)) {
                 room.usersMoves.set(socket.id, []);
                 room.users.set(socket.id, username);
             }
@@ -101,12 +107,12 @@ io.on("connection", (socket) => {
             io.to(socket.id).emit("room_exists", false);
         }
     });
-    // listen to alert other users that this user has joined room 
+    // listen to alert other users that this user has joined room
     socket.on("joined_room", () => {
-        console.log('joined_room received');
+        console.log("joined_room received");
         const roomId = getRoomId();
-        console.log('Current room ID:', roomId);
-        console.log('Socket rooms:', [...socket.rooms]);
+        console.log("Current room ID:", roomId);
+        console.log("Socket rooms:", [...socket.rooms]);
         const room = rooms.get(roomId);
         if (room) {
             if (!room.usersMoves.has(socket.id)) {
@@ -135,7 +141,9 @@ io.on("connection", (socket) => {
         addMove(roomId, socket.id, Object.assign(Object.assign({}, move), { timestamp }));
         //console.log(move, timestamp);
         io.to(socket.id).emit("your_moves", Object.assign(Object.assign({}, move), { timestamp }));
-        socket.broadcast.to(roomId).emit("user_draw", Object.assign(Object.assign({}, move), { timestamp }), socket.id);
+        socket.broadcast
+            .to(roomId)
+            .emit("user_draw", Object.assign(Object.assign({}, move), { timestamp }), socket.id);
     });
     socket.on("send_msg", (msg) => {
         console.log("send_msg");

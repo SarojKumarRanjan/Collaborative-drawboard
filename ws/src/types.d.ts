@@ -8,6 +8,12 @@ export declare global{
         lineColor:string;
         shape:Shape
         mode:CtxMode
+        selection:{
+            x:number,
+            y:number,
+            width:number,
+            height:number
+        } | null
     }
 
  interface Move{

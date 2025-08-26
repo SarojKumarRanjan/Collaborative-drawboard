@@ -1,8 +1,10 @@
 import { socket } from "@/lib/Socket";
 import useRefStore from "@/store/Refs.store";
 import roomStore from "@/store/room.store";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import useSavedMovesStore from "@/store/SavedMoves.store";
+import { useCtx } from "./useCtx";
+import { useSelection } from "./useSelection";
 
 let prevMovesLength = 0;
 
@@ -16,14 +18,9 @@ const useMovesHandlers = () => {
   const removeSavedMoves = useSavedMovesStore((state) => state.removeSavedMoves);
   const addSavedMove = useSavedMovesStore((state) => state.addSavedMove);
 
-  const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
+  const ctx = useCtx();
 
-  useEffect(() => {
-    const newCtx = canvasRef.current?.getContext("2d");
-    if (newCtx) {
-      setCtx(newCtx);
-    }
-  }, [canvasRef]);
+ 
 
   const sortedMoves = useMemo(() => {
     const moves = [...movesWithoutUser, ...myMoves];
@@ -152,6 +149,8 @@ const useMovesHandlers = () => {
         };
     }, [ handleMyMoves]);
 
+
+useSelection(drawAllMoves);
 
  useEffect(() => {
   if ((prevMovesLength > 0 && sortedMoves.length) || !prevMovesLength) {

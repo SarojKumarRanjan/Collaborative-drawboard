@@ -1,4 +1,5 @@
 import { optionStore } from "@/store/Options.store";
+import { useEffect } from "react";
 import { AiOutlineSelect } from "react-icons/ai";
 import { BsPenFill } from "react-icons/bs";
 import { FaEraser } from "react-icons/fa";
@@ -6,6 +7,13 @@ import { FaEraser } from "react-icons/fa";
 const ModePicker = () => {
     const setMode = optionStore((state) => state.setMode);
     const mode = optionStore((state) => state.mode);
+    const setSelection = optionStore((state) => state.setSelection);
+
+
+useEffect(() => {
+    setSelection(null)
+}, [mode,setSelection]);
+
     return (
         <div className="flex p-2 gap-4">
             <button className={`text-xl ${mode==="draw" && "bg-green-400" } `} onClick={() => setMode("draw")}>
