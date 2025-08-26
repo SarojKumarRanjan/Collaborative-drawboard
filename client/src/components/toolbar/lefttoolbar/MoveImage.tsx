@@ -46,7 +46,6 @@ const Moveimage = () => {
             selection:selection
         },
         timestamp: Date.now(),
-        eraser: false,
     }
  
  

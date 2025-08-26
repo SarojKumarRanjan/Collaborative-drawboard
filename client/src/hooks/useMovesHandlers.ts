@@ -64,7 +64,7 @@ const useMovesHandlers = () => {
 
       ctx.lineWidth = moveOptions.lineWidth;
       ctx.strokeStyle = moveOptions.lineColor;
-      if (move.eraser) {
+      if (move.options.mode === "eraser") {
         ctx.globalCompositeOperation = "destination-out";
       }else{
         ctx.globalCompositeOperation = "source-over";
@@ -82,8 +82,15 @@ const useMovesHandlers = () => {
           case "rect":{
             const {width,height} = move.rect
             ctx.beginPath();
-            ctx.rect(path[0][0], path[0][1], width, height);
-            ctx.stroke();
+            if(move.rect.fill){
+            ctx.fillRect(path[0][0], path[0][1], width, height);
+            ctx.fill();
+          }else{
+              ctx.rect(path[0][0], path[0][1], width, height);
+              ctx.stroke();
+          }
+            
+            
             ctx.closePath();
           }
           break;

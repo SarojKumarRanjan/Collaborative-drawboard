@@ -126,7 +126,6 @@ export const useDraw = (blocked: boolean) => {
         selection: selection
       },
       timestamp: 0,
-      eraser: mode === "eraser",
       img: {
         base64: "",
       },
@@ -165,8 +164,10 @@ export const useDraw = (blocked: boolean) => {
     if (mode === "select") {
       ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
 
+
       drawRect(ctx, tempMoves[0], finalX, finalY, false, true);
-       tempMoves.push([finalX, finalY]);
+      ctx.fillStyle = "rgba(0, 0, 0)";
+      tempMoves.push([finalX, finalY]);
       return;
     }
 
