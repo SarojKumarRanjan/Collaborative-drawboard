@@ -12,7 +12,7 @@ let tempCircle = {
   cX: 0,
   cY: 0,
   radiusX: 0,
-  radiusY: 0
+  radiusY: 0,
 };
 let tempReact = {
   width: 0,
@@ -24,7 +24,7 @@ export const useDraw = (blocked: boolean) => {
   const canvasRef = useRefStore((state) => state.canvasRef);
   const lineColor = optionStore((state) => state.lineColor);
   const lineWidth = optionStore((state) => state.lineWidth);
-  const erase = optionStore((state) => state.erase);
+  const mode = optionStore((state) => state.mode);
   const shape = optionStore((state) => state.shape);
   const clearSavedMoves = useSavedMovesStore((state) => state.clearSavedMoves);
 
@@ -47,7 +47,7 @@ export const useDraw = (blocked: boolean) => {
       ctx.lineCap = "round";
       ctx.lineWidth = lineWidth;
       ctx.strokeStyle = lineColor;
-      if (erase) {
+      if (mode === "eraser") {
         ctx.globalCompositeOperation = "destination-out";
       } else {
         ctx.globalCompositeOperation = "source-over";
@@ -56,14 +56,19 @@ export const useDraw = (blocked: boolean) => {
   };
 
   const drawAndSet = () => {
-    if(!tempImageData && ctx){
-      tempImageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+    if (!tempImageData && ctx) {
+      tempImageData = ctx.getImageData(
+        0,
+        0,
+        ctx.canvas.width,
+        ctx.canvas.height
+      );
     }
 
-    if(tempImageData && ctx){
+    if (tempImageData && ctx) {
       ctx.putImageData(tempImageData, 0, 0);
     }
-  }
+  };
 
   const handleStartDrawing = (x: number, y: number) => {
     if (!ctx || blocked) return;
@@ -73,9 +78,11 @@ export const useDraw = (blocked: boolean) => {
 
     setDrawing(true);
     setCtxOptions();
-    ctx.beginPath();
-    ctx.lineTo(finalX, finalY);
-    ctx.stroke();
+    if (shape === "line" && mode !== "select") {
+      ctx.beginPath();
+      ctx.lineTo(finalX, finalY);
+      ctx.stroke();
+    }
     tempMoves.push([finalX, finalY]);
   };
 
@@ -85,28 +92,26 @@ export const useDraw = (blocked: boolean) => {
     setDrawing(false);
     ctx.closePath();
 
- 
-
     const move: Move = {
       path: tempMoves,
-      rect:{
-        ...tempReact
+      rect: {
+        ...tempReact,
       },
       circle: {
-        ...tempCircle
+        ...tempCircle,
       },
       options: {
         lineColor: lineColor,
         lineWidth: lineWidth,
-        erase: erase,
+        mode: mode,
         shape: shape,
       },
       timestamp: 0,
-      eraser: erase,
-      img:{
+      eraser: mode === "eraser",
+      img: {
         base64: "",
       },
-      id:""
+      id: "",
     };
 
     tempMoves = [];
@@ -114,9 +119,16 @@ export const useDraw = (blocked: boolean) => {
       cX: 0,
       cY: 0,
       radiusX: 0,
-      radiusY: 0
+      radiusY: 0,
     };
     tempReact = { width: 0, height: 0 };
+
+    if (mode === "select") {
+      drawAndSet();
+      tempImageData = undefined;
+      return;
+    }
+
     tempImageData = undefined;
     socket.emit("draw", move);
     clearSavedMoves();
@@ -129,24 +141,28 @@ export const useDraw = (blocked: boolean) => {
 
     const finalX = getPosition(x, movedX);
     const finalY = getPosition(y, movedY);
+    drawAndSet();
+
+    if (mode === "select") {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+
+      drawRect(ctx, tempMoves[0], finalX, finalY, shiftKey, true);
+      return;
+    }
 
     switch (shape) {
       case "line":
         if (shiftKey) {
           tempMoves = tempMoves.slice(0, 1);
-         
-         drawAndSet()
         }
         drawLine(ctx, tempMoves[0], finalX, finalY, shiftKey);
         tempMoves.push([finalX, finalY]);
         break;
       case "rect":
-        drawAndSet();
         tempReact = drawRect(ctx, tempMoves[0], finalX, finalY);
         break;
 
       case "circle":
-        drawAndSet();
         tempCircle = drawCircle(ctx, tempMoves[0], finalX, finalY);
         break;
       default:
@@ -159,6 +175,5 @@ export const useDraw = (blocked: boolean) => {
     handleStartDrawing,
     handleEndDrawing,
     drawing,
-    
   };
 };

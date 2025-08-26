@@ -1,12 +1,13 @@
 export declare global{
 
     type Shape = "circle" | "rect" | "line" | "image";
+    type CtxMode = "draw" | "eraser" | "select";
 
     interface CtxOptions{
         lineWidth:number;
         lineColor:string;
-        erase:boolean;
         shape:Shape
+        mode:CtxMode
     }
 
     interface Move{
