@@ -4,6 +4,35 @@ export const CANVAS_SIZE = {
     height:2000
 }
 
+
+export const DEFAULT_MOVE:Move = {
+    circle:{
+        cX:0,
+        cY:0,
+        radiusX:0,
+        radiusY:0
+    },
+    rect:{
+        width:0,
+        height:0,
+    },
+    img:{
+        base64:""
+    },
+    timestamp: 0,
+    id: "",
+    options:{
+        lineWidth: 2,
+        lineColor: '#171717',
+        fillColor: '#858484',
+        shape: 'line',
+        mode: 'draw',
+        selection: null
+    },
+    path: []
+
+};
+
 export const DEFAULT_EASE = [0.6,0.01,-0.05,0.99]
 
 

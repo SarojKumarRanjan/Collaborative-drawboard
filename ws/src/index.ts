@@ -101,7 +101,7 @@ io.on("connection", (socket) => {
 
       const room = rooms.get(roomId);
       if (
-        room &&
+        room && room.users.size <12 &&
         !room.usersMoves.has(socket.id) &&
         !room.users.has(socket.id)
       ) {

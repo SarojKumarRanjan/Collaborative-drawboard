@@ -85,7 +85,7 @@ io.on("connection", (socket) => {
         if (rooms.has(roomId)) {
             socket.join(roomId);
             const room = rooms.get(roomId);
-            if (room &&
+            if (room && room.users.size < 12 &&
                 !room.usersMoves.has(socket.id) &&
                 !room.users.has(socket.id)) {
                 room.usersMoves.set(socket.id, []);

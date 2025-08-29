@@ -10,9 +10,15 @@ interface SavedStore  {
 
 const useSavedMovesStore = create<SavedStore>((set) => ({   
   savedMoves: [],
-  addSavedMove: (move) => set((state) => ({
-    savedMoves: [...state.savedMoves, move],
-  })),
+  addSavedMove: (move:Move) => {
+    if(move.options.mode==="select"){
+      return;
+    }
+
+    return set((state) => ({
+      savedMoves: [...state.savedMoves, move],
+    }));
+  },
   clearSavedMoves: () => set({ savedMoves: [] }),
   removeSavedMoves: () => {
     let move: Move | undefined;

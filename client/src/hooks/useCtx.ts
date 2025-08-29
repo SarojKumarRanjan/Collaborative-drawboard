@@ -10,6 +10,8 @@ export const useCtx = () => {
     useEffect(() =>{
        const newCtx = canvasRef.current?.getContext("2d");
        if(newCtx){
+            newCtx.lineCap = "round";
+            newCtx.lineJoin = "round";
            setCtx(newCtx);
        }
     }, [canvasRef]);

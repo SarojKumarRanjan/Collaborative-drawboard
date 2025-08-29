@@ -6,6 +6,7 @@ export declare global{
     interface CtxOptions{
         lineWidth:number;
         lineColor:string;
+        fillColor:string
         shape:Shape
         mode:CtxMode
         selection:{
@@ -26,7 +27,6 @@ export declare global{
         rect:{
             width:number,
             height:number,
-            fill?:boolean
         },
         img:{
             base64:string

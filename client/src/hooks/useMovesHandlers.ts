@@ -5,13 +5,14 @@ import { useEffect, useMemo } from "react";
 import useSavedMovesStore from "@/store/SavedMoves.store";
 import { useCtx } from "./useCtx";
 import { useSelection } from "./useSelection";
+import { optionStore } from "@/store/Options.store";
 
 let prevMovesLength = 0;
 
-const useMovesHandlers = () => {
+const useMovesHandlers = (clearOnYourMove: () => void) => {
   const canvasRef = useRefStore((state) => state.canvasRef);
   const smallCanvasRef = useRefStore((state) => state.smallCanvasRef);
-
+  const setSelection = optionStore((state) => state.setSelection)
   const handleMyMoves = roomStore((state) => state.handleMyMoves);
   const handleRemoveMyMove = roomStore((state) => state.handleRemoveMyMove);
   const { usersMoves, movesWithoutUser, myMoves } = roomStore((state) => state);
@@ -57,17 +58,24 @@ const useMovesHandlers = () => {
 
       const moveOptions = move.options;
 
-      if (moveOptions.shape === "image" && image) {
-        ctx.drawImage(image, path[0][0], path[0][1]);
-        
+      if(moveOptions.mode==="select"){
+        return;
       }
+
+     
 
       ctx.lineWidth = moveOptions.lineWidth;
       ctx.strokeStyle = moveOptions.lineColor;
+      ctx.fillStyle = moveOptions.fillColor;
       if (move.options.mode === "eraser") {
         ctx.globalCompositeOperation = "destination-out";
       }else{
         ctx.globalCompositeOperation = "source-over";
+      }
+
+       if (moveOptions.shape === "image" && image) {
+        ctx.drawImage(image, path[0][0], path[0][1]);
+        
       }
       switch (moveOptions.shape) {
         case "line":
@@ -82,15 +90,11 @@ const useMovesHandlers = () => {
           case "rect":{
             const {width,height} = move.rect
             ctx.beginPath();
-            if(move.rect.fill){
-            ctx.fillRect(path[0][0], path[0][1], width, height);
+           
+            
+            ctx.rect(path[0][0], path[0][1], width, height);
+            ctx.stroke();
             ctx.fill();
-          }else{
-              ctx.rect(path[0][0], path[0][1], width, height);
-              ctx.stroke();
-          }
-            
-            
             ctx.closePath();
           }
           break;
@@ -99,6 +103,7 @@ const useMovesHandlers = () => {
           ctx.beginPath();
           ctx.ellipse(cX, cY, radiusX, radiusY, 0, 0, 2 * Math.PI);
           ctx.stroke();
+          ctx.fill();
           ctx.closePath();
         }
           break;
@@ -147,14 +152,17 @@ const useMovesHandlers = () => {
 
     useEffect(() => {
         socket.on("your_moves",(move:Move) => {
-          
+          clearOnYourMove();
           handleMyMoves(move);
+          setTimeout(() => {
+            setSelection(null)
+          },100)
         })
 
         return () => {
             socket.off("your_moves");
         };
-    }, [ handleMyMoves]);
+    }, [ handleMyMoves, clearOnYourMove,setSelection]);
 
 
 useSelection(drawAllMoves);
@@ -187,7 +195,9 @@ useSelection(drawAllMoves);
         if(ctx){
           const move =   handleRemoveMyMove();
 
-          if(move){
+          if(move?.options?.mode==="select"){
+             setSelection(null);
+          }else if(move){
 
             addSavedMove(move);
              socket.emit("undo")

@@ -76,9 +76,17 @@ const roomStore = create<RoomStore>((set) => {
 
     handleMyMoves: (moves: Move) =>
       set((state) => {
-        const myMoves = state.myMoves ? [...state.myMoves, moves] : [moves];
-         //console.log("My moves", moves);
-        return { myMoves };
+        if(state.myMoves[state.myMoves.length - 1]?.options.mode==="select"){
+          return{
+            ...state,
+            myMoves: [...state.myMoves.slice(0, state.myMoves.length - 1), moves]
+          }
+        }
+
+        return{
+          ...state,
+          myMoves: [...state.myMoves, moves]
+        }
       }),
 
     handleRemoveMyMove: () =>{

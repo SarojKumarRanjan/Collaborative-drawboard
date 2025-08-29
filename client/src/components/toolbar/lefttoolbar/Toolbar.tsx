@@ -10,6 +10,7 @@ import { HiOutlineDownload } from "react-icons/hi";
 import ImageInput from "./ImageInput";
 import useSavedMovesStore from "@/store/SavedMoves.store";
 import roomStore from "@/store/room.store";
+import SelectionBtns from "../SelectionBtns";
 
 const Toolbar = () => {
 
@@ -53,7 +54,7 @@ const Toolbar = () => {
         <div className={baseBtn}>
           <Collaborate />
         </div>
-
+        <SelectionBtns/>
         <div className={baseBtn}> 
         <div className="flex items-center  justify-center">
           <button

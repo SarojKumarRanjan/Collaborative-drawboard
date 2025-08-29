@@ -18,7 +18,7 @@ const ImageInput = () => {
             const file = item.getAsFile();
             if (file) {
               OptimizeImage(file, (uri) => {
-                setMoveImage(uri);
+                setMoveImage({base64: uri});
               });
             }
           }
@@ -44,7 +44,7 @@ const ImageInput = () => {
       const file = (event.target as HTMLInputElement).files?.[0];
       if (file) {
         OptimizeImage(file, (uri) => {
-          setMoveImage(uri);
+          setMoveImage({base64: uri});
         });
       }
     });

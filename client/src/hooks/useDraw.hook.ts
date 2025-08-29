@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { socket } from "@/lib/Socket";
 import { useBoardPosition } from "@/store/BoardPosition";
 import { getPosition } from "@/lib/GetPosition";
 import { optionStore } from "@/store/Options.store";
+import roomStore from "@/store/room.store";
 import { drawLine, drawCircle, drawRect } from "./DrawFromSocket";
-import useRefStore from "@/store/Refs.store";
 import useSavedMovesStore from "@/store/SavedMoves.store";
+import { useCtx } from "./useCtx";
+import { DEFAULT_MOVE } from "@/constant";
 
 
 let tempMoves: [number, number][] = [];
@@ -22,7 +24,6 @@ let tempReact = {
 let tempImageData: ImageData | undefined;
 
 export const useDraw = (blocked: boolean) => {
-  const canvasRef = useRefStore((state) => state.canvasRef);
   const lineColor = optionStore((state) => state.lineColor);
   const lineWidth = optionStore((state) => state.lineWidth);
   const mode = optionStore((state) => state.mode);
@@ -30,26 +31,21 @@ export const useDraw = (blocked: boolean) => {
   const clearSavedMoves = useSavedMovesStore((state) => state.clearSavedMoves);
   const setSelection = optionStore((state) => state.setSelection);
   const selection = optionStore((state) => state.selection);
+  const fillColor = optionStore((state) => state.fillColor);
+  const handleMyMoves = roomStore((state) => state.handleMyMoves);
 
   const position = useBoardPosition();
   const movedX = position.x;
   const movedY = position.y;
   const [drawing, setDrawing] = useState(false);
-  const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
 
-  useEffect(() => {
-    const newCtx = canvasRef.current?.getContext("2d");
-    if (newCtx) {
-      setCtx(newCtx);
-    }
-  }, [canvasRef]);
+  const ctx = useCtx();
 
   const setCtxOptions = () => {
     if (ctx) {
-      ctx.lineJoin = "round";
-      ctx.lineCap = "round";
       ctx.lineWidth = lineWidth;
       ctx.strokeStyle = lineColor;
+      ctx.fillStyle = fillColor;
       if (mode === "eraser") {
         ctx.globalCompositeOperation = "destination-out";
       } else {
@@ -81,6 +77,7 @@ export const useDraw = (blocked: boolean) => {
 
     setDrawing(true);
     setCtxOptions();
+    drawAndSet();
     if (shape === "line" && mode !== "select") {
       ctx.beginPath();
       ctx.lineTo(finalX, finalY);
@@ -97,20 +94,41 @@ export const useDraw = (blocked: boolean) => {
     setDrawing(false);
     ctx.closePath();
 
-    if(mode==="select"){
-      drawAndSet()
-      const x = tempMoves[0][0];
-      const y = tempMoves[0][1];
-      const width = tempMoves[tempMoves.length - 1][0] - x;
-      const height = tempMoves[tempMoves.length - 1][1] - y;
-      setSelection({ x, y, width, height });
+    let addMove = true
 
-      if(width !== 0 && height !== 0){
+    if(mode==="select" && tempMoves.length){
+      clearOnYourMove();
+      let x = tempMoves[0][0];
+      let y = tempMoves[0][1];
+      let width = tempMoves[tempMoves.length - 1][0] - x;
+      let height = tempMoves[tempMoves.length - 1][1] - y;
+      
+      if(width <0){
+        width -= 4
+        x+=2;
+      }else{
+        width +=4;
+        x-=2;
+      }
+
+      if(height<0){
+        height -= 4
+        y+=2;
+      }else{
+        height +=4;
+        y-=2;
+      }
+
+      if((width <4 || width > 4) && (height<4 || height > 4)){
         setSelection({ x, y, width, height });
+      }else{
+        setSelection(null);
+        addMove = false;
       }
     }
 
     const move: Move = {
+      ...DEFAULT_MOVE,
       path: tempMoves,
       rect: {
         ...tempReact,
@@ -121,15 +139,11 @@ export const useDraw = (blocked: boolean) => {
       options: {
         lineColor: lineColor,
         lineWidth: lineWidth,
+        fillColor: fillColor,
         mode: mode,
         shape: shape,
         selection: selection
       },
-      timestamp: 0,
-      img: {
-        base64: "",
-      },
-      id: "",
     };
 
     tempMoves = [];
@@ -148,6 +162,11 @@ export const useDraw = (blocked: boolean) => {
     if(mode !== "select"){
          socket.emit("draw", move);
          clearSavedMoves();
+    }else{
+      if(addMove){
+        handleMyMoves(move);
+      }
+      
     }
    
   };
@@ -166,8 +185,9 @@ export const useDraw = (blocked: boolean) => {
 
 
       drawRect(ctx, tempMoves[0], finalX, finalY, false, true);
-      ctx.fillStyle = "rgba(0, 0, 0)";
+      
       tempMoves.push([finalX, finalY]);
+      setCtxOptions();
       return;
     }
 
@@ -191,10 +211,16 @@ export const useDraw = (blocked: boolean) => {
     }
   };
 
+  const clearOnYourMove = () => {
+    drawAndSet();
+    tempImageData = undefined;
+  }
+
   return {
     handleDraw,
     handleStartDrawing,
     handleEndDrawing,
     drawing,
+    clearOnYourMove,
   };
 };
