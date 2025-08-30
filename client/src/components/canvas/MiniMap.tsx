@@ -1,5 +1,5 @@
 import {    useEffect, useRef, useState } from "react";
-
+import { useBoardPosition } from "@/store/BoardPosition";
 import { MotionValue, useMotionValue , motion} from "motion/react";
 import { useViewportSize } from "@/hooks/Viewport";
 import { CANVAS_SIZE } from "@/constant";
@@ -13,45 +13,54 @@ type MiniMapProps = {
   
 };
 
-const Minimap = ({ x, y, dragging }: MiniMapProps) => {
+const Minimap = ({  dragging }: MiniMapProps) => {
 
     const smallCanvasRef = useRefStore((state) => state.smallCanvasRef);
     const containerRef = useRef<HTMLDivElement>(null);
     const { height, width } = useViewportSize();
     
+    const boardPosition = useBoardPosition();
+
+    const [x,setX] = useState(0);
+    const [y,setY] = useState(0);
     const [isDraggingMinimap, setIsDraggingMinimap] = useState(false);
 
-    
+    useEffect(() => {
+      if(!isDraggingMinimap){
+        const unsubscribe = boardPosition.x.onChange(setX);
+        return unsubscribe;
+      }
+
+      return ()=>{}
+    },[isDraggingMinimap,boardPosition.x]);
+
+    useEffect(() => {
+      if(!isDraggingMinimap){
+        const unsubscribe = boardPosition.y.onChange(setY);
+        return unsubscribe;
+      }
+
+      return ()=>{}
+    },[isDraggingMinimap,boardPosition.y]);
 
     const miniX = useMotionValue(0);
     const miniY = useMotionValue(0);
 
-    
     useEffect(() => {
-      if (!isDraggingMinimap) {
-        miniX.set(-x.get() / 10);
-        miniY.set(-y.get() / 10);
-      }
-    }, [ isDraggingMinimap, miniX, miniY,x,y]);
-
-    useEffect(() => {
-      const unsubscribeX = miniX.onChange((newX) => {
-        if (!dragging && isDraggingMinimap) {
-          x.set(Math.floor(-newX * 10));
+      miniX.onChange((newX)=>{
+        if(!dragging) {
+          boardPosition.x.set(Math.floor(-newX * 10));
         }
-      });
+      })
 
-      const unsubscribeY = miniY.onChange((newY) => {
-        if (!dragging && isDraggingMinimap) {
-          y.set(Math.floor(-newY * 10));
+      miniY.onChange((newY)=>{
+        if(!dragging) {
+          boardPosition.y.set(Math.floor(-newY * 10));
         }
-      });
+      })
 
-      return () => {
-        unsubscribeX();
-        unsubscribeY();
-      };
-    }, [x, y, miniX, miniY, dragging, isDraggingMinimap]);
+    },[dragging,boardPosition.x,miniX,boardPosition.y,miniY]);
+
 
     return (
       <div
@@ -85,6 +94,8 @@ const Minimap = ({ x, y, dragging }: MiniMapProps) => {
             x: miniX,
             y: miniY,
           }}
+          animate={{ x:-x/10, y:-y/10 }}
+          transition={{duration:0}}
         />
       </div>
     );
