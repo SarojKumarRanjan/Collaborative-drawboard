@@ -23,7 +23,7 @@ const roomStore = create<RoomStore>((set) => {
     setRoomId: (roomId: string) => set({ roomId }),
     resetRoomId: () => set({ roomId: "" }),
     usersMoves: new Map<string, Move[]>(),
-    users:new Map<string,string>(),
+    users: new Map<string, string>(),
     movesWithoutUser: [],
     myMoves: [],
     setRoomUsers: (userId: string, username: string) =>
@@ -69,44 +69,47 @@ const roomStore = create<RoomStore>((set) => {
         const users = new Map(state.usersMoves);
         if (users.has(userId)) {
           const oldMoves = users.get(userId) || [];
-            users.set(userId, oldMoves.slice(0, -1));
+          users.set(userId, oldMoves.slice(0, -1));
         }
         return { usersMoves: users };
       }),
 
     handleMyMoves: (moves: Move) =>
       set((state) => {
-        if(state.myMoves[state.myMoves.length - 1]?.options.mode==="select"){
-          return{
+        if (
+          state.myMoves[state.myMoves.length - 1]?.options.mode === "select"
+        ) {
+          return {
             ...state,
-            myMoves: [...state.myMoves.slice(0, state.myMoves.length - 1), moves]
-          }
+            myMoves: [
+              ...state.myMoves.slice(0, state.myMoves.length - 1),
+              moves,
+            ],
+          };
         }
 
-        return{
+        return {
           ...state,
-          myMoves: [...state.myMoves, moves]
-        }
+          myMoves: [...state.myMoves, moves],
+        };
       }),
 
-    handleRemoveMyMove: () =>{
+    handleRemoveMyMove: () => {
       let move: Move | undefined;
       set((state) => {
         const myMoves = state.myMoves ? [...state.myMoves] : [];
         //console.log(myMoves);
-        
+
         if (myMoves.length > 0) {
           move = myMoves.pop();
         }
         return { myMoves };
-      }
-    )
-  return move
-  },
+      });
+      return move;
+    },
 
     handleSetMovesWithoutUser: (moves: Move[]) =>
       set({ movesWithoutUser: moves }),
-
   };
 });
 
