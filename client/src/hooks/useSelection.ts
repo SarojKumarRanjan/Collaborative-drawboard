@@ -20,6 +20,7 @@ export const useSelection = (drawAllMoves: () => Promise<void>) => {
   const bgRef = useRefStore((state) => state.bgRef);
   const selectionRef = useRefStore((state) => state.selectionRef);
   const setMoveImage = useRefStore((state) => state.setMoveImage);
+  
 
   useEffect(() => {
     const callback = async () => {
@@ -96,7 +97,7 @@ export const useSelection = (drawAllMoves: () => Promise<void>) => {
   const makeBlob = async(withBg?:boolean) => {
     if(!selection) return null;
 
-    const {x,y,width,height} = selection;
+    const {x,y,width,height} = dimension;
 
     const imgData = ctx?.getImageData(x, y, width, height);
 
@@ -175,18 +176,23 @@ export const useSelection = (drawAllMoves: () => Promise<void>) => {
           lineWidth,
           shape: "rect",
           mode: "eraser",
-          selection,
+          selection:{
+            x:0,
+            y:0,
+            width:0,
+            height:0
+          },
           fillColor: "#000000",
         },
       };
 
       socket.emit("draw", move);
-
+      
       return move;
   }
 
  const createCopy = async() => {
-  const blob = await makeBlob(true);
+  const blob = await makeBlob(false);
   if (blob) {
     navigator.clipboard.write([
       new ClipboardItem({

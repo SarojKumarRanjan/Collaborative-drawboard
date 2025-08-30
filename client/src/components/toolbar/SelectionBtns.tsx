@@ -15,9 +15,10 @@ const SelectionBtns = () => {
     let left;
 
     if(selection){
-        const {x,y,width,height} = selection;
-        top = Math.min(y, y + height)-40;
-        left = Math.min(x, x + width);
+        const { x, y, width, height } = selection;
+
+       top = Math.min(y, y + height) - 50;
+       left = Math.min(x, x + width);
 
     }else{
         left = -40
@@ -26,13 +27,14 @@ const SelectionBtns = () => {
 
 
     return(
-        <div className="absolute top-0 left-0 z-50 flex items-center justify-center gap-2 "
+        <div className="absolute top-0 left-0 z-100 flex items-center justify-center gap-2 pointer-events-auto "
         style={{
-            top,left
-        }}
+        top: `${top}px`,
+        left: `${left}px`,
+      }}
         >
 
-            <button className="rounded-full bg-gray-20 p-2"
+            <button className="rounded-full bg-gray-20 p-2 pointer-events-auto"
             ref={(ref) => {
                 if(ref && selectionRef.current) {
                     selectionRef.current[0] = ref;
@@ -41,7 +43,7 @@ const SelectionBtns = () => {
             >
             <BsArrowsMove/>
             </button>
-             <button className="rounded-full bg-gray-20 p-2"
+             <button className="rounded-full bg-gray-20 p-2 pointer-events-auto"
             ref={(ref) => {
                 if(ref && selectionRef.current) {
                     selectionRef.current[1] = ref;
@@ -50,7 +52,7 @@ const SelectionBtns = () => {
             >
             <AiFillCopy/>
             </button>
-             <button className="rounded-full bg-gray-20 p-2"
+             <button className="rounded-full bg-gray-20 p-2 pointer-events-auto"
             ref={(ref) => {
                 if(ref && selectionRef.current) {
                     selectionRef.current[2] = ref;

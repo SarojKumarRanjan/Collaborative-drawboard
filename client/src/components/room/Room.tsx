@@ -5,6 +5,7 @@ import Moveimage from "../toolbar/lefttoolbar/MoveImage"
 //import NotFound from "../notFound"
 //import { useModalStore } from '@/store/Modal.store';
 import Toolbar from "@/components/toolbar/lefttoolbar/Toolbar";
+import SelectionBtns from "../toolbar/SelectionBtns";
 
 import Chat from "../chat/Chat"
 import TopToolBar from "@/components/toolbar/toptoolbar/Toptoolbar";
@@ -22,9 +23,10 @@ const Room = () => {
 
     return (
         <div className="h-svh w-svw  overflow-hidden">
-
+            <SelectionBtns />
             <TopToolBar />
             <Moveimage/>
+            
             <Toolbar  />
             
             <CanvasPage  />
