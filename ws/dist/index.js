@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const http_1 = require("http");
 const express_1 = __importDefault(require("express"));
 const socket_io_1 = require("socket.io");
+const uuidv4_1 = require("uuidv4");
 const app = (0, express_1.default)();
 const server = (0, http_1.createServer)(app);
 const io = new socket_io_1.Server(server, {
@@ -67,7 +68,11 @@ io.on("connection", (socket) => {
             roomId = Math.random().toString(36).substring(2, 6);
         } while (rooms.has(roomId));
         socket.join(roomId);
-        rooms.set(roomId, { usersMoves: new Map([[socket.id, []]]), drawed: [], users: new Map([[socket.id, username]]) });
+        rooms.set(roomId, {
+            usersMoves: new Map([[socket.id, []]]),
+            drawed: [],
+            users: new Map([[socket.id, username]]),
+        });
         console.log(`Room ${roomId} created with user ${socket.id}`);
         io.to(socket.id).emit("created", roomId);
     });
@@ -80,7 +85,9 @@ io.on("connection", (socket) => {
         if (rooms.has(roomId)) {
             socket.join(roomId);
             const room = rooms.get(roomId);
-            if (room && !room.usersMoves.has(socket.id) && !room.users.has(socket.id)) {
+            if (room && room.users.size < 12 &&
+                !room.usersMoves.has(socket.id) &&
+                !room.users.has(socket.id)) {
                 room.usersMoves.set(socket.id, []);
                 room.users.set(socket.id, username);
             }
@@ -100,12 +107,12 @@ io.on("connection", (socket) => {
             io.to(socket.id).emit("room_exists", false);
         }
     });
-    // listen to alert other users that this user has joined room 
+    // listen to alert other users that this user has joined room
     socket.on("joined_room", () => {
-        console.log('joined_room received');
+        console.log("joined_room received");
         const roomId = getRoomId();
-        console.log('Current room ID:', roomId);
-        console.log('Socket rooms:', [...socket.rooms]);
+        console.log("Current room ID:", roomId);
+        console.log("Socket rooms:", [...socket.rooms]);
         const room = rooms.get(roomId);
         if (room) {
             if (!room.usersMoves.has(socket.id)) {
@@ -128,13 +135,15 @@ io.on("connection", (socket) => {
         socket.broadcast.to(roomId).emit("mouse_moved", x, y, socket.id);
     });
     socket.on("draw", (move) => {
-        console.log("draw");
         const roomId = getRoomId();
         const timestamp = Date.now();
+        move.id = (0, uuidv4_1.uuid)();
         addMove(roomId, socket.id, Object.assign(Object.assign({}, move), { timestamp }));
-        console.log(move, timestamp);
+        //console.log(move, timestamp);
         io.to(socket.id).emit("your_moves", Object.assign(Object.assign({}, move), { timestamp }));
-        socket.broadcast.to(roomId).emit("user_draw", Object.assign(Object.assign({}, move), { timestamp }), socket.id);
+        socket.broadcast
+            .to(roomId)
+            .emit("user_draw", Object.assign(Object.assign({}, move), { timestamp }), socket.id);
     });
     socket.on("send_msg", (msg) => {
         console.log("send_msg");
@@ -167,6 +176,9 @@ app.get("/", (req, res) => {
 });
 app.get("/api", (req, res) => {
     res.send("Hello API!");
+});
+app.get("/awake", (req, res) => {
+    res.send("Server is awake!");
 });
 // Debug endpoint to check room status
 app.get("/debug/rooms", (req, res) => {

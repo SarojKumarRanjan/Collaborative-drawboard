@@ -2,20 +2,27 @@ import { useBoardPosition } from "@/store/BoardPosition";
 import { useEffect } from "react";
 import { motion } from "motion/react";
 import { CANVAS_SIZE } from "@/constant";
+import { useBackgroundMode } from "@/store/BoardPosition";
 
 const Background = ({ bgRef }: { bgRef: React.RefObject<HTMLCanvasElement | null>  }) => {
   const { x, y } = useBoardPosition();
+  const { lines,mode } = useBackgroundMode((state) => state);
 
-  
+
 
   useEffect(() => {
     if (bgRef.current) {
       const ctx = bgRef.current.getContext("2d");
       if (ctx) {
-        ctx.fillStyle = "#f0f0f0";
+        ctx.fillStyle = mode === "light" ? "#fff" : "#222";
         ctx.fillRect(0, 0, CANVAS_SIZE.width, CANVAS_SIZE.height);
+
+        document.body.style.backgroundColor = mode === "light" ? "#fff" : "#222";     
+
+       if(lines){
+
         ctx.lineWidth = 1;
-        ctx.strokeStyle = "#ccc";
+        ctx.strokeStyle = mode === "light" ? "#ddd" : "#333";
 
         for (let i = 0; i < CANVAS_SIZE.height; i += 25) {
           ctx.beginPath();
@@ -32,9 +39,14 @@ const Background = ({ bgRef }: { bgRef: React.RefObject<HTMLCanvasElement | null
           ctx.stroke();
           ctx.closePath();
         }
+
+       }
+
+
+        
       }
     }
-  },[bgRef]);
+  },[bgRef,mode,lines]);
 
   return (
     <motion.canvas

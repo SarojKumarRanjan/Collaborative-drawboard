@@ -3,7 +3,7 @@ import { socket } from "@/lib/Socket";
 import roomStore from "@/store/room.store";
 
 export const useSocketDraw = (
-  ctx: CanvasRenderingContext2D | undefined,
+ 
   drawing: boolean
 ) => {
   const { handleAddMoveToUser, handleRemoveMoveFromUser } =
@@ -15,7 +15,7 @@ export const useSocketDraw = (
     let userIdLater = "";
 
     const handleUserDraw = (move: Move, userId: string) => {
-      if (ctx && !drawing) {
+      if ( !drawing) {
         handleAddMoveToUser(userId, move);
       } else {
         // Queue moves to draw later
@@ -30,13 +30,13 @@ export const useSocketDraw = (
       socket.off("user_draw", handleUserDraw);
 
       // Draw queued moves on cleanup
-      if (ctx && movesToDrawLater.length > 0 && userIdLater) {
+      if (movesToDrawLater.length > 0 && userIdLater) {
         movesToDrawLater.forEach((move) => {
           handleAddMoveToUser(userIdLater, move);
         });
       }
     };
-  }, [ctx, handleAddMoveToUser, drawing]);
+  }, [handleAddMoveToUser, drawing]);
 
   // Handle undo from other users
   useEffect(() => {

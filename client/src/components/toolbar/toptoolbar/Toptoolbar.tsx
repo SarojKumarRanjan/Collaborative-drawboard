@@ -1,7 +1,8 @@
 import { optionStore } from "@/store/Options.store";
 import { FaRegCircle   } from "react-icons/fa";
 import { BiRectangle } from "react-icons/bi";
-import { BsPenFill } from "react-icons/bs";
+import { CgShapeZigzag } from "react-icons/cg";
+import ModePicker from "./ModePicker";
 
 const TopToolBar = () => {
 
@@ -9,7 +10,7 @@ const TopToolBar = () => {
         {
             name: "Line",
             value: "line",
-            icon: <BsPenFill />
+            icon: <CgShapeZigzag />
         },
         {
             name: "Rect",
@@ -42,6 +43,7 @@ const TopToolBar = () => {
                     </button>
                 ))
             }
+            <ModePicker />
         </div>
     );
 }

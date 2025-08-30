@@ -1,23 +1,40 @@
 export declare global{
 
     type Shape = "circle" | "rect" | "line" | "image";
+    type CtxMode = "draw" | "eraser" | "select";
 
     interface CtxOptions{
         lineWidth:number;
         lineColor:string;
-        erase:boolean;
         shape:Shape
+        mode:CtxMode
+        selection:{
+            x:number,
+            y:number,
+            width:number,
+            height:number
+        } | null
     }
 
-    interface Move{
-        base64:string
-        radius:number
-        width:number
-        height:number
+ interface Move{
+        circle:{
+            cX:number,
+            cY:number,
+            radiusX:number,
+            radiusY:number
+        },
+        rect:{
+            width:number,
+            height:number,
+            fill?:boolean
+        },
+        img:{
+            base64:string
+        },
         path:[number,number][]
         options:CtxOptions
         timestamp: number;
-        eraser:boolean
+        id:string    
     }
 
     interface Message {

@@ -1,18 +1,51 @@
 
 
+const getWidthAndHeight = (
+  x: number,
+  y: number,
+  from: [number, number],
+  shift?: boolean
+) => {
+  let width = x - from[0];
+  let height = y - from[1];
+
+  if (shift) {
+    if (Math.abs(width) > Math.abs(height)) {
+      if ((width > 0 && height < 0) || (width < 0 && height > 0))
+        width = -height;
+      else width = height;
+    } else if ((height > 0 && width < 0) || (height < 0 && width > 0))
+      height = -width;
+    else height = width;
+  } else {
+    width = x - from[0];
+    height = y - from[1];
+  }
+
+  return { width, height };
+};
 export const drawCircle = (
   ctx: CanvasRenderingContext2D,
   from: [number, number],
   x: number,
-  y: number
+  y: number,
+  shift?:boolean
 ) => {
   ctx.beginPath();
-  const radius = Math.sqrt((x - from[0]) ** 2 + (y - from[1]) ** 2);
-  ctx.arc(from[0], from[1], radius, 0, Math.PI * 2);
+
+const { width, height } = getWidthAndHeight(x, y, from, shift);
+
+const cX = from[0] + width / 2;
+const cY = from[1] + height / 2;
+const radiusX = Math.abs(width / 2);
+const radiusY = Math.abs(height / 2);
+
+  ctx.ellipse(cX, cY, radiusX, radiusY, 0, 0, 2 * Math.PI);
   ctx.stroke();
+  ctx.fill();
   ctx.closePath();
 
-  return radius;
+  return { cX, cY, radiusX, radiusY };
 };
 
 export const drawRect = (
@@ -20,30 +53,19 @@ export const drawRect = (
   from: [number, number],
   x: number,
   y: number,
-  shift?: boolean
+  shift?: boolean,
+  fill?:boolean
 ) => {
   ctx.beginPath();
-  let width = x - from[0];
-  let height = y - from[1];
-  if (shift) {
-    const d = Math.sqrt((x - from[0]) ** 2 + (y - from[1]) ** 2);
-    width = height = d / Math.SQRT2;
-
-    if (x - from[0] > 0 && y - from[0] < 0) {
-      height = -height;
-    } else if (y - from[1] > 0 && x - from[0] < 0) {
-      width = -width;
-    } else if (y - from[1] < 0 && x - from[0] < 0) {
-      height = -height;
-      width = -width;
-    }
-  } else {
-    height = y - from[1];
-    width = x - from[0];
+  const { width, height } = getWidthAndHeight(x, y, from, shift);
+  if(fill){
+    ctx.fillRect(from[0], from[1], width, height);
+    
+  }else{
+    ctx.rect(from[0], from[1], width, height);
   }
-
-  ctx.rect(from[0], from[1], width, height);
   ctx.stroke();
+  ctx.fill();
   ctx.closePath();
 
   return { width, height };

@@ -11,70 +11,65 @@ import { useParams } from "react-router-dom";
 import { socket } from "@/lib/Socket";
 import refStore from "@/store/Refs.store";
 import useMovesHandlers from "@/hooks/useMovesHandlers";
+import { useCtx } from "@/hooks/useCtx";
+import { BsArrowsMove } from "react-icons/bs";
 
 const CanvasPage = () => {
   const canvasRef = refStore((state) => state.canvasRef);
   const undoRef = refStore((state) => state.undoRef);
   const bgRef = refStore((state) => state.bgRef);
+  const redoRef = refStore((state) => state.redoRef);
 
-  const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
-  const [dragging, setDragging] = useState(false);
-  const [, setMovedminimap] = useState(false);
+  const ctx = useCtx();
+  const [dragging, setDragging] = useState(true);
   const { height, width } = useViewportSize();
 
   const { roomid } = useParams<{ roomid?: string }>();
 
-  const { drawAllMoves, handleUndo } = useMovesHandlers();
+  
 
-  const { handleDraw, handleEndDrawing, handleStartDrawing, drawing } = useDraw(
+  const { handleDraw, handleEndDrawing, handleStartDrawing, drawing,clearOnYourMove } = useDraw(
     dragging,
-    drawAllMoves
+    
   );
 
   const { x, y } = useBoardPosition();
 
-  useEffect(() => {
-    if (canvasRef.current) {
-      const newCtx = canvasRef.current.getContext("2d");
-      if (newCtx) {
-        setCtx(newCtx);
-      }
-    }
-  }, [canvasRef]);
+const {  handleUndo,handleRedo } = useMovesHandlers(clearOnYourMove);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && !dragging) {
-        setDragging(true);
-      }
-    };
+useEffect(() => {
+  setDragging(false);
+},[])
 
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (!e.ctrlKey && dragging) {
-        setDragging(false);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-    };
-  }, [dragging, handleUndo]);
-
+ 
   useEffect(() => {
     if (undoRef) {
       const undoBtn = undoRef.current;
+      
       if (undoBtn) {
         undoBtn.addEventListener("click", handleUndo);
+        
         return () => {
           undoBtn.removeEventListener("click", handleUndo);
+          
         };
       }
     }
   }, [undoRef, handleUndo]);
+
+  useEffect(() => {
+    if (redoRef) {
+      const redoBtn = redoRef.current;
+
+      if (redoBtn) {
+        redoBtn.addEventListener("click", handleRedo);
+
+        return () => {
+          redoBtn.removeEventListener("click", handleRedo);
+        };
+      }
+    }
+  }, [redoRef, handleRedo]);
 
   useEffect(() => {
     if (ctx && roomid) {
@@ -82,7 +77,7 @@ const CanvasPage = () => {
     }
   }, [ctx, roomid]);
 
-  useSocketDraw(ctx, drawing);
+  useSocketDraw( drawing);
 
   return (
     <div className="relative w-full h-full overflow-hidden">
@@ -91,9 +86,7 @@ const CanvasPage = () => {
         ref={canvasRef}
         width={CANVAS_SIZE.width}
         height={CANVAS_SIZE.height}
-        className={`absolute z-10 ${
-          dragging ? "cursor-move" : "cursor-crosshair"
-        }`}
+        className={`absolute z-10 `}
         style={{ x, y }}
         drag={dragging}
         dragConstraints={{
@@ -138,8 +131,14 @@ const CanvasPage = () => {
         x={x}
         y={y}
         dragging={dragging}
-        setMovedminimap={setMovedminimap}
       />
+      <button className={`absolute bottom-14 right-5 z-20 rounded-xl ${dragging ? "bg-green-500" : "bg-gray-500 text-black"}  p-3 text-xl text-white`}
+      onClick={() => {
+        setDragging((prev) => !prev);
+      }}
+      >
+        <BsArrowsMove/>
+      </button>
     </div>
   );
 };
